@@ -183,7 +183,8 @@ class component_messenger {
 		$msg_cnt = 0;
 		
 		reset ($IN['mid']);
-		while (list(,$v) = each($IN['mid'])) {
+		//while (list(,$v) = each($IN['mid'])) {
+		foreach ( $IN['mid'] as $v ) {
 			if (!$MSG->get($v))
 				$STD->error("Invalid message selected for deletion.");
 			if ($MSG->data['owner'] != $STD->user['uid'])
@@ -425,8 +426,8 @@ class component_messenger {
 		$url = $STD->encode_url($_SERVER['PHP_SELF']);
 		$url2 = $STD->encode_url($_SERVER['PHP_SELF'], "act=msg&param=01");
 		
-		$message = "Your message has been successfully dispatched.
-			<p align='center'><a href='$url2'>Return to Message Center</a><br />
+		$message = "Your message has been sent successfully.
+			<p style='margin:auto;'><a href='$url2'>Return to Message Center</a><br>
 			<a href='$url'>Return to the main page</a></p>";
 		
 		$this->output .= $STD->global_template->message($message);
@@ -457,13 +458,13 @@ class component_messenger {
 		
 		// Determine Message Type
 		if ($MSG['sender'] == 0 && $MSG['msg_read'] == 0)
-			$data['icon'] = "<img src='{$STD->tags['image_path']}/msg_sys_new.gif' alt='[NEW]' title='Unread System Message' />";
+			$data['icon'] = "<img src='{$STD->tags['image_path']}/msg_sys_new.gif' alt='[NEW]' title='Unread System Message'>";
 		elseif ($MSG['sender'] == 0 && $MSG['msg_read'] == 1)
-			$data['icon'] = "<img src='{$STD->tags['image_path']}/msg_sys_read.gif' alt='[READ]' title='System Message' />";
+			$data['icon'] = "<img src='{$STD->tags['image_path']}/msg_sys_read.gif' alt='[READ]' title='System Message'>";
 		elseif ($MSG['sender'] > 0 && $MSG['msg_read'] == 0)
-			$data['icon'] = "<img src='{$STD->tags['image_path']}/msg_new.gif' alt='[NEW]' title='Unread Personal Message' />";
+			$data['icon'] = "<img src='{$STD->tags['image_path']}/msg_new.gif' alt='[NEW]' title='Unread Personal Message'>";
 		elseif ($MSG['sender'] > 0 && $MSG['msg_read'] == 1)
-			$data['icon'] = "<img src='{$STD->tags['image_path']}/msg_read.gif' alt='[READ]' title='Personal Message' />";
+			$data['icon'] = "<img src='{$STD->tags['image_path']}/msg_read.gif' alt='[READ]' title='Personal Message'>";
 		
 		// Create Username Link
 		($MSG['sender'] == 0)
