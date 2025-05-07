@@ -65,7 +65,8 @@ class component_search {
 		}
 		
 		$output = '';
-		while (list($k,$v) = each($groups)) {
+		//while (list($k,$v) = each($groups)) {
+		foreach ( $groups as $k => $v ) {
 			$box = $STD->make_select_box("filter[$k]", $v['varr'], $v['narr'], '', 'selectbox');
 			$output .= $this->html->constraint_row($v['gn'], $box);
 		}
@@ -81,7 +82,7 @@ class component_search {
 		//$STD->sajax->sajax_handle_client_request();
 		
 		// Get Module List
-		$type_list = "<select name=\"c\" size=\"1\" class=\"selectbox\">\n";
+		$type_list = "<select name=\"c\" aria-label=\"Search by Module\" size=\"1\" class=\"selectbox\">\n";
 		$type_list .= "<option value=\"0\">All Modules</option>\n";
 		
 		$DB->query("SELECT mid,full_name,hidden FROM {$CFG['db_pfx']}_modules");
@@ -170,7 +171,8 @@ class component_search {
 	}
 	
 	function simple_search () {
-		global $IN, $STD;
+		global $CFG, $IN, $STD, $DB;
+		//require_once ROOT_PATH.'lib/resource.php';
 		
 		if (empty($IN['st']))
 			$IN['st'] = 0;
@@ -212,6 +214,34 @@ class component_search {
 		while ( $RES->nextItem() ) {
 			$data = $this->format_results($RES->data, $string, $relevance);
 			
+			//BEGIN - Thumbnail lookup (added by Hypernova)
+			$data['thumbnail'] = '';
+			$table_name = '';
+			$no_thumb = false;
+			$thumb_query = "";
+			switch ($data['type']) {
+				case(1): $table_name = $CFG['db_pfx']."_res_gfx"; break;
+				case(2): $table_name = $CFG['db_pfx']."_res_games"; break;
+				case(7): $table_name = $CFG['db_pfx']."_res_hacks"; break;
+				default: $no_thumb = true; break;
+			}
+			$thumb_query = "SELECT thumbnail FROM ".$table_name." WHERE eid = ".$data['eid'];
+			$try_again = false;
+			if ($no_thumb == false) {
+				$DB->query($thumb_query);
+				$t_count = $DB->get_num_rows();
+				if (intval($t_count) == 0) {
+					$no_thumb = true;
+					$try_again = true;
+				}
+				else {
+					while ($thumb_r = $DB->fetch_row()) {
+						$data['thumbnail'] = $CFG['root_url'].'/thumbnail/'.$data['type'].'/'.$thumb_r['thumbnail'];
+					}
+				}
+			}
+			//END - Thumbnail lookup (added by Hypernova)
+			
 			$this->output .= $this->html->simple_results_row( $data );
 		}
 
@@ -226,7 +256,7 @@ class component_search {
 	}
 	
 	function advanced_search () {
-		global $IN, $STD;
+		global $IN, $STD, $DB, $CFG;
 		
 		if (empty($IN['st']))
 			$IN['st'] = 0;
@@ -326,6 +356,34 @@ class component_search {
 
 			while ( $RES->nextItem() ) {
 				$data = $this->format_results($RES->data, $string, $relevance);
+				
+				//BEGIN - Thumbnail lookup (added by Hypernova)
+				$data['thumbnail'] = '';
+				$table_name = '';
+				$no_thumb = false;
+				$thumb_query = "";
+				switch ($data['type']) {
+					case(1): $table_name = $CFG['db_pfx']."_res_gfx"; break;
+					case(2): $table_name = $CFG['db_pfx']."_res_games"; break;
+					case(7): $table_name = $CFG['db_pfx']."_res_hacks"; break;
+					default: $no_thumb = true; break;
+				}
+				$thumb_query = "SELECT thumbnail FROM ".$table_name." WHERE eid = ".$data['eid'];
+				$try_again = false;
+				if ($no_thumb == false) {
+					$DB->query($thumb_query);
+					$t_count = $DB->get_num_rows();
+					if (intval($t_count) == 0) {
+						$no_thumb = true;
+						$try_again = true;
+					}
+					else {
+						while ($thumb_r = $DB->fetch_row()) {
+							$data['thumbnail'] = $CFG['root_url'].'/thumbnail/'.$data['type'].'/'.$thumb_r['thumbnail'];
+						}
+					}
+				}
+				//END - Thumbnail lookup (added by Hypernova)
 				
 				$this->output .= $this->html->simple_results_row( $data );
 			}
