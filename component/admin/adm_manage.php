@@ -158,6 +158,7 @@ class component_adm_manage {
 					$MSG->query_use('aux_comment'); break;
 			case 3: $MSG->query_use('aux_message'); break;
 			case 5: $MSG->query_use('aux_resource'); break;
+			case 6: $MSG->query_use('aux_message'); break;
 		}
 		
 		if (!$MSG->get($IN['id']))
@@ -165,23 +166,27 @@ class component_adm_manage {
 		
 		// Actions
 		if ($IN['t'] == 1 && empty($MSG->data['r_rid']))
-			$actions = "+ Associated Submission Removed<br />";
+			$actions = "+ Associated Submission Removed<br>";
 		elseif ($IN['t'] == 1)
 			$actions = "+ <a href='".$STD->encode_url($_SERVER['PHP_SELF'], 
 					   "act=modq&param=02&c={$MSG->data['r_type']}&rid={$MSG->data['r_rid']}").
-					   "'>Go to associated submission in Mod Queue</a><br />";
+					   "'>Go to associated submission in Mod Queue</a><br>";
 		elseif ($IN['t'] == 2 && empty($MSG->data['c_cid']))
-			$actions = "+ Reported Comment Removed<br />";
+			$actions = "+ Reported Comment Removed<br>";
 		elseif ($IN['t'] == 2)
 			$actions = "+ <a href='".$STD->encode_url($_SERVER['PHP_SELF'],
 					   "act=manage&param=04&id={$IN['id']}").
-					   "'>Delete Comment</a><br />";
+					   "'>Delete Comment</a><br>";
 		elseif ($IN['t'] == 5 && empty($MSG->data['r_rid']))
-			$actions = "+ Associated Submission Removed<br />";
+			$actions = "+ Associated Submission Removed<br>";
 		elseif ($IN['t'] == 5)
 			$actions = "+ <a href='".$STD->encode_url($_SERVER['PHP_SELF'], 
 					   "act=modq&param=02&c={$MSG->data['r_type']}&rid={$MSG->data['r_rid']}").
-					   "'>Go to associated submission in Mod Queue</a><br />";
+					   "'>Go to associated submission in Mod Queue</a><br>";
+		elseif ($IN['t'] == 6)
+			$actions = "+ <a href='".$STD->encode_url($_SERVER['PHP_SELF'], 
+					   "act=ucp&param=02&u={$MSG->data['sender']}").
+					   "'>Go to associated user</a><br>";
 		else
 			$actions = "";
 		
@@ -192,7 +197,7 @@ class component_adm_manage {
 		 	$closed_by = '';
 		 	$inform = '';
 		 	$actions .= "+ <a href=\"javascript:show_hide('close_frm1');show_hide('close_frm2');
-		 				 show_hide('close_frm3');show_hide('close_frm4');show_hide('close_frm5')\">Close Message</a><br />";
+		 				 show_hide('close_frm3');show_hide('close_frm4');show_hide('close_frm5')\">Close Message</a><br>";
 		} else {
 		 	$show = '';
 		 	$status = 'Closed';
@@ -304,7 +309,7 @@ class component_adm_manage {
 		$form_elements['offline'] = $STD->make_yes_no('offline', $CFG['site_offline']);
 		
 		$data = array();
-		$data['message'] = str_replace("<br />", "\n", $CFG['offline_msg']);
+		$data['message'] = str_replace("<br>", "\n", $CFG['offline_msg']);
 		
 		$this->output .= $this->html->site_on_off($data, $form_elements, $STD->make_form_token());
 		
@@ -316,7 +321,7 @@ class component_adm_manage {
 		
 		$this->output = $STD->global_template->page_header( 'Comment Sync' );
 		
-		$syncmsg = "Starting synchronization...<br /><br />";
+		$syncmsg = "Starting synchronization...<br><br>";
 		
 		$cq = $DB->query("SELECT rid FROM {$CFG['db_pfx']}_resources");
 		while ($row = $DB->fetch_row($cq)) {
@@ -327,12 +332,12 @@ class component_adm_manage {
 			if (empty($crow['date']))
 				$crow['date'] = 0;
 	
-			$syncmsg .= "{$row['rid']}: {$crow['cnt']} @ {$crow['date']}<br />";
+			$syncmsg .= "{$row['rid']}: {$crow['cnt']} @ {$crow['date']}<br>";
 	
 			$DB->query("UPDATE {$CFG['db_pfx']}_resources SET comments = {$crow['cnt']}, comment_date = {$crow['date']} WHERE rid = {$row['rid']}");
 		}
 
-		$syncmsg .= "<br />Synchronization Complete.";
+		$syncmsg .= "<br>Synchronization Complete.";
 		$this->output .= $syncmsg;
 		$this->output .= $STD->global_template->page_footer();
 	}
@@ -342,9 +347,10 @@ class component_adm_manage {
 		
 		$this->output = $STD->global_template->page_header( 'Average Score Recalculation' );
 		
-		$syncmsg = "Starting recalculation...<br /><br />";
+		$syncmsg = "Starting recalculation...<br><br>";
 		
-		$cq = $DB->query("SELECT rid, eid FROM {$CFG['db_pfx']}_resources WHERE type = 2");
+		$cq = $DB->query("SELECT rid, eid FROM {$CFG['db_pfx']}_resources WHERE type = 2 or type = 7");
+		//$cq = $DB->query("SELECT rid, eid FROM {$CFG['db_pfx']}_resources WHERE type = 2");
 		while ($row = $DB->fetch_row($cq)) {
 			
 			$cc = $DB->query("SELECT COUNT(*) AS cnt, SUM(score) as totalscore FROM {$CFG['db_pfx']}_res_reviews WHERE gid = {$row['rid']}");
@@ -353,12 +359,13 @@ class component_adm_manage {
 			if (empty($crow['totalscore']))
 				$crow['totalscore'] = 0;
 	
-			$syncmsg .= "{$row['rid']}: {$crow['totalscore']} / {$crow['cnt']}<br />";
+			$syncmsg .= "{$row['rid']}: {$crow['totalscore']} / {$crow['cnt']}<br>";
 	
 			$DB->query("UPDATE {$CFG['db_pfx']}_res_games SET num_revs = {$crow['cnt']}, rev_score = {$crow['totalscore']} WHERE eid = {$row['eid']}");
+			$DB->query("UPDATE {$CFG['db_pfx']}_res_hacks SET num_revs = {$crow['cnt']}, rev_score = {$crow['totalscore']} WHERE eid = {$row['eid']}");
 		}
 
-		$syncmsg .= "<br />Recalculation Complete.";
+		$syncmsg .= "<br>Recalculation Complete.";
 		$this->output .= $syncmsg;
 		$this->output .= $STD->global_template->page_footer();
 	}
@@ -376,7 +383,7 @@ class component_adm_manage {
 		
 		$CFG['site_offline'] = $IN['offline'];
 		$msg = $STD->rawclean_value($_POST['message']);
-		$msg = preg_replace("/\n/", "<br />", $msg);
+		$msg = preg_replace("/\n/", "<br>", $msg);
 		$CFG['offline_msg'] = preg_replace("/\r/", "", $msg);
 		
 		// Write settings
@@ -387,7 +394,7 @@ class component_adm_manage {
 		$url_main = $STD->encode_url($_SERVER['PHP_SELF']);
 		$url_back = $STD->encode_url($_SERVER['PHP_SELF'], "act=manage&param=05");
 		$message = "The site settings were updated successfully.
-					<p align='center'><a href='$url_back'>Return to Site On/Off</a><br />
+					<p align='center'><a href='$url_back'>Return to Site On/Off</a><br>
 					<a href='$url_main'>Return to the main page</a></p>";
 					
 		$this->output = $STD->global_template->page_header('Update Successful');
@@ -408,9 +415,28 @@ class component_adm_manage {
 			case 3: $code = 'q_report.gif'; $alt = 'Reported Personal Message'; break;
 			case 4: $code = 'q_normal.gif'; $alt = 'General Message'; break;
 			case 5: $code = 'q_remove.gif'; $alt = 'Removal Request'; break;
+			case 6: $code = 'move.gif'; $alt = 'Username Request'; break;
 		}
 		
 		return "<img src='{$STD->tags['image_path']}/$code' border='0' alt='mc' title='$alt' />";
+	}
+	
+	//Change username - Hypernova (Unfinished and not in use until I got more free time)
+	function change_username () {
+		global $IN, $STD, $DB, $CFG;
+		
+		$MSG = new acp_message;
+		
+		//error check
+		if (!$MSG->get($IN['uid']))
+			$STD->error("The requested user does not exist.");
+		if (!$MSG->get($IN['newname']))
+			$STD->error("The requested new username does not exist.");
+		
+		// change username
+		
+		
+		exit;
 	}
 	
 	function get_type ($type) {
@@ -421,6 +447,7 @@ class component_adm_manage {
 			case 3: return 'Report';
 			case 4: return 'General Message';
 			case 5: return 'Removal Request';
+			case 6: return 'Name Change Request';
 		}
 		
 		return '';
