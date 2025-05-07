@@ -20,6 +20,11 @@ class component_submit {
 		global $STD, $IN, $session, $SAJAX;
 		
 		$this->html = $STD->template->useTemplate('submit');
+
+		// If the user hasn't changed their password yet then force them to do so to submit stuff.
+		if ($STD->user['new_password'] != 1) {
+			header("Location: ".$_SERVER['PHP_SELF'].'?act=login&param=10');
+		}
 		
 		//$STD->sajax->sajax_allow("component_submit__show_form_page");
 		
@@ -60,7 +65,7 @@ class component_submit {
 	// AJAX STRING show_form_page(INT cat)
 	//
 	// AJAX-callable routine that produces a particular submit form for the submit page.
-	
+
 	function show_form_page ($cat) {
 		global $IN, $STD;
 		
@@ -135,7 +140,8 @@ class component_submit {
 		$STD->modules->load_module_list();
 		reset($STD->modules->module_set);
 		$hidden_page = 0;
-		while (list(,$row) = each($STD->modules->module_set)) {
+		//while (list(,$row) = each($STD->modules->module_set)) {
+		foreach ( $STD->modules->module_set as $row ) {
 			($row['mid'] == $type)
 				? $sel = "selected='selected'"
 				: $sel = '';
@@ -179,7 +185,7 @@ class component_submit {
 	}
 	
 	function do_submit () {
-		global $IN, $STD, $TAG;
+		global $IN, $STD, $TAG, $upload_msg;
 		
 		if (!$STD->validate_form($IN['security_token'])) {
 			$recovery = "<pre>".print_r($IN,1)."</pre>";
@@ -192,6 +198,9 @@ class component_submit {
 		if (!$STD->user['can_submit'])
 			$STD->error("You do not have permission to submit new files to the site.");
 
+	// If I remember correctly, following code was commented to fix a weird issue that happens randomly.
+	// I'm not sure honestly.
+	
 	//	$mid = $IN['c'];
 		$module = $STD->modules->new_module($IN['c']);
 		if (!$module)
@@ -211,16 +220,16 @@ class component_submit {
 		
 		$module->init();
 		
-		$module->user_submit_data_check();		
-	
-		$RES = $module->user_update_submit_data();
+		$module->user_submit_data_check();
+		
+			$RES = $module->user_update_submit_data();
 		
 		// Quickly do a user check
 		if (!$STD->user['first_submit']) {
 			$STD->user['first_submit'] = 1;
 			$STD->userobj->update();
 		}
-
+		
 		$username = htmlspecialchars($STD->user['username']);
 		$url = $STD->encode_url($_SERVER['PHP_SELF']);
 		$message = "Thank you, $username.  Your submission has been successfully put 
@@ -228,7 +237,10 @@ class component_submit {
 			placement on the site.  You will receive a message via your personal messenger when 
 			this happens.
 			<p align='center'><a href='$url'>Return to the main page</a></p>";
-		
+		$global_error = 0;
+		$upload_msg = $message;
+		$_SESSION['submit_message'] = $message;
+		$_SESSION['error_code'] = 0;
 	//	$this->output .= $this->html->page_header();
 		
 		$this->output .= $STD->global_template->message($message);
@@ -236,6 +248,8 @@ class component_submit {
 	//	$this->output .= $this->html->page_footer();
 		
 		$STD->clear_form_token();
+		
+		//echo '<script type="text/javascript">location.href = "https://mfgg.net/index.php?act=notice&msg=";</script>';
 	}
 }	
 ?>
