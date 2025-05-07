@@ -30,7 +30,7 @@ class mailer {
 	
 	var $interface;
 	
-	function mailer () {
+	function init () {
 		global $CFG;
 		
 		$this->from = $CFG['mail_out'];
@@ -152,10 +152,10 @@ class mailer {
 	function smtp_error ($error = '') {
 		global $STD;
 		
-		$msg = "SMTP Error on: {$this->smtp_host} ({$this->smtp_port})<br />
-				Response Code: {$this->smtp_code}<br />
-				Response: {$this->smtp_resp}<br /><br />
-				$error<br /><br />Delivery failed.";
+		$msg = "SMTP Error on: {$this->smtp_host} ({$this->smtp_port})<br>
+				Response Code: {$this->smtp_code}<br>
+				Response: {$this->smtp_resp}<br><br>
+				$error<br><br>Delivery failed.";
 		
 		$STD->error($msg);
 	}
@@ -224,7 +224,7 @@ class mailer {
 		if ($this->smtp_code != 221)
 			$this->smtp_error("Could not clear connection.");
 		
-		@fclose($this->smtp_conn);
+		fclose($this->smtp_conn);
 	}
 	
 }
