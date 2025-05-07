@@ -65,7 +65,7 @@ class fieldset {
 		
 		$newdata = $this->switchtype($type, $data);
 		
-		!empty($data['nl']) ? $br = '<br />' : $br = '';
+		!empty($data['nl']) ? $br = '<br>' : $br = '';
 		
 		$cnt = $this->cur_field - 1;
 		$this->html = str_replace("{{field_$cnt}}", ' '.$br.$newdata."{{field_$cnt}}", $this->html);
@@ -171,13 +171,13 @@ class fieldset {
 	
 	function proc_textfield (&$data) {	
 		
-		$html = "<textarea rows='6' cols='38' name='{$data['name']}' class='textbox'>{$data['v']}</textarea>";
+		$html = "<textarea rows='6' cols='38' name='{$data['name']}' title='{$data['name']}' class='textbox'>{$data['v']}</textarea>";
 		return $html;
 	}
 	
 	function proc_select (&$data) {
 		
-		$html = "<select name='{$data['name']}' size='1' class='selectbox'>";
+		$html = "<select name='{$data['name']}' title='{$data['name']}' size='1' class='selectbox'>";
 		
 		for ($x=0; $x<sizeof($data['v']['value']); $x++) {
 			$selected = '';
@@ -211,7 +211,7 @@ class fieldset {
 				$selected = "checked='checked'";
 				
 			$html .= "<input type='checkbox' name='{$data['name']}' value='{$data['v']['value'][$x]}' 
-				$selected /> {$name}<br />";
+				$selected> {$name}<br>";
 		}
 		
 		$html = preg_replace("/<br \/>$/", '', $html);
@@ -268,7 +268,8 @@ class fieldset {
 		$html = '';
 		sort($data['v']);
 		reset($data['v']);
-		while (list(,$v) = each($data['v'])) {
+		//while (list(,$v) = each($data['v'])) {
+		foreach ( $data['v'] as $v ) {
 			$html .= "<a href=\"javascript:add_tag('{$data['id']}_csv','{$v}');\">{$v}</a>, ";
 		}
 		
