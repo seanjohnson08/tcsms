@@ -93,14 +93,19 @@ if ((empty($STD->user) || $STD->user['uid'] == 0 || !$STD->user['acp_access'])
 }
 
 switch ($IN['act']) {
-	case 'login'	:	require ROOT_PATH.'component/admin/adm_login.php'; break;
-	case 'ucp'		:	require ROOT_PATH.'component/admin/adm_ucp.php'; break;
-	case 'modq'		:	require ROOT_PATH.'component/admin/adm_modq.php'; break;
-	case 'manage'	:	require ROOT_PATH.'component/admin/adm_manage.php'; break;
-	case 'news'		:	require ROOT_PATH.'component/admin/adm_news.php'; break;
-	case 'conf'		:	require ROOT_PATH.'component/admin/adm_conf.php'; break;
-	case 'panel'	:	require ROOT_PATH.'component/admin/adm_panel.php'; break;
-	default			:	require ROOT_PATH.'component/admin/adm_main.php'; break;
+	case 'login'			:	require ROOT_PATH.'component/admin/adm_login.php'; break;
+	case 'ucp'				:	require ROOT_PATH.'component/admin/adm_ucp.php'; break;
+	case 'modq'				:	require ROOT_PATH.'component/admin/adm_modq.php'; break;
+	case 'manage'			:	require ROOT_PATH.'component/admin/adm_manage.php'; break;
+	case 'news'				:	require ROOT_PATH.'component/admin/adm_news.php'; break;
+	case 'conf'				:	require ROOT_PATH.'component/admin/adm_conf.php'; break;
+	case 'panel'			:	require ROOT_PATH.'component/admin/adm_panel.php'; break;
+	case 'webhook'			:	require ROOT_PATH.'component/admin/adm_webhook.php'; break;
+	case 'staffgraph'		:	require ROOT_PATH.'component/admin/adm_staffgraph.php'; break;
+	case 'staffgraph2'		:	require ROOT_PATH.'component/admin/adm_staffgraph2.php'; break;
+	case 'staffgraphimage'	:	require ROOT_PATH.'component/admin/adm_staffgraphimage.php'; break;
+	case 'staffgraphimage2'	:	require ROOT_PATH.'component/admin/adm_staffgraphimage2.php'; break;
+	default					:	require ROOT_PATH.'component/admin/adm_main.php'; break;
 }
 
 $component->init();
