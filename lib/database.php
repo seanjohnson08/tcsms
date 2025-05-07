@@ -11,7 +11,7 @@ class Database {
 	
 	function Database (&$settings, $pdb=null) {
 		$this->settings = $settings;
-		$this->eh =& new ErrorHandler();
+		$this->eh = new ErrorHandler();
 		
 		if ($pdb != Null)
 			$this->db = $pdb;
@@ -41,6 +41,16 @@ class Database {
 		return true;
 	}
 	
+	function close_db () {
+		
+		reset($this->cache);
+		//while (list(,$val) = each($this->cache))
+		foreach ( $this->cache as $val ) {
+			mysqli_free_result($rid);
+		
+		mysqli_close($this->connection);
+	}
+	
 	function query ($query, $debug=0) {
 		$res =& $this->db->query($query);
 		if (PEAR::isError($res))
@@ -60,7 +70,8 @@ class Database {
 	function prepArguments ($args) {
 		$preped = array();
 		reset($args);
-		while (list($key,$val) = each($args))
+		//while (list($key,$val) = each($args))
+		foreach ( $args as $key => $val ) {
 			$preped[$key] = $this->db->quote($val);
 		return $preped;
 	}
@@ -93,7 +104,8 @@ class Database {
 	function makeSimpleSetList ($set_args) {
 		$setStr = '';
 		reset($set_args);
-		while (list($key,$val) = each($set_args)) {
+		//while (list($key,$val) = each($set_args)) {
+		foreach ( $set_args as $key => $val ) {
 			if ($setStr != '')
 				$setStr .= ', ';
 			$setStr .= $key . ' = ' . $val;
@@ -105,7 +117,8 @@ class Database {
 	function makeSimpleWhere ($args) {
 		$where = '';
 		reset($args);
-		while (list($key,$val) = each($args)) {
+		//while (list($key,$val) = each($args)) {
+		foreach ( $args as $key => $val ) {
 			if ($where != '')
 				$where .= ' AND ';
 			$where .= $key . ' = ' . $val;
@@ -116,7 +129,8 @@ class Database {
 	function makeSimpleSelectString ($select_args) {
 		$selStr = '';
 		reset($select_args);
-		while (list($key,$val) = each($select_args)) {
+		//while (list($key,$val) = each($select_args)) {
+		foreach ( $select_args as $key => $val ) {
 			if ($selStr != '')
 				$selStr .= ', ';
 			if (is_numeric($key))
@@ -134,7 +148,8 @@ class Database {
 			
 		$tableStr = '';
 		reset ($table_args);
-		while (list($key,$val) = each($table_args)) {
+		//while (list($key,$val) = each($table_args)) {
+		foreach ( $table_args as $key => $val ) {
 			if ($tableStr != '')
 				$tableStr .= ', ';
 			$tableStr .= $val . ' ' . $key;
