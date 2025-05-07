@@ -103,11 +103,11 @@ Class ErrorHandler {
 			206		=> 'Could not read file(s)',
 			207		=> 'Could not write file(s)',
 			208		=> 'Could not open file(s)',
-			209		=> 'File allready exists',
+			209		=> 'File already exists',
 			210		=> 'Could not delete directory',
 			301		=> 'Session expired',
 			302		=> 'Username or Password is invalid',
-			401		=> 'And internal script error ouccurred',
+			401		=> 'An internal script error occurred',
 			1101	=> 'A required field was empty',
 			1102	=> 'Invalid data in field',
 			1103	=> 'File upload failed',
@@ -123,16 +123,13 @@ Class ErrorHandler {
 			<body>
 			<p> 
 			<p>
-			<table width='100%' border='0' cellspacing='0' cellpadding='5'
-			bgcolor='Navy'> 
+			<table width='100%' border='0' cellspacing='0' cellpadding='5' bgcolor='Navy'> 
 			<tr>
-				<td bgcolor='Navy' width='100%'><font
-			color='white'><b>Error!</b></font></td>
+				<td bgcolor='Navy' width='100%'><font color='white'><b>Error!</b></font></td>
 			</tr>
 			</table>
 			<p>
-			The 
-			following fatal error occurred:
+			The following fatal error occurred:
 			<p>
 			<b>{{errorType}} (error code 
 			{{errorCode}})</b>
@@ -142,7 +139,8 @@ Class ErrorHandler {
 			</html>";
 			
 		reset($values);
-		while (list($key, $value) = each($values))
+		//while (list($key, $value) = each($values))
+		foreach ( $values as $key => $value ) {
 			$html = str_replace('{{'.$key.'}}', $value, $html);
 		
 		return $html;
