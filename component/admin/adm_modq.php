@@ -83,12 +83,12 @@ class component_adm_modq {
 		
 		// Header
 		if ($CFG['adm_virus_check'] && $module['ext_files'] > 0)
-			$boxes['vc'] = "<br /><input type='checkbox' name='virus_check' /> I have checked that the included files are virus free";
+			$boxes['vc'] = "<br><input type='checkbox' name='virus_check' title='Virus Check'> I have checked that the included files are virus-free";
 		else
 			$boxes['vc'] = "";
 			
 		if ($STD->user['acp_super'])
-			$boxes['dq'] = "<br /><input type='checkbox' name='dq_override' /> Override Decision Queue";
+			$boxes['dq'] = "<br><input type='checkbox' name='dq_override' title='Override Queue'> Override Decision Queue";
 		else
 			$boxes['dq'] = "";
 		
@@ -163,7 +163,8 @@ class component_adm_modq {
 		
 		$name_arr = array('---'); $val_arr = array('');
 		reset($STD->modules->module_set);
-		while (list(,$row) = each ($STD->modules->module_set)) {
+		//while (list(,$row) = each ($STD->modules->module_set)) {
+		foreach ( $STD->modules->module_set as $row ) {
 	//	while ($row = $DB->fetch_row()) {
 			$val_arr[] = $row['mid'];
 			$name_arr[] = $row['full_name'];
@@ -247,7 +248,7 @@ class component_adm_modq {
 			$MSG->data['folder'] = 0;
 			$MSG->data['title'] = "Submission Modified";
 			$MSG->data['message'] = "Your submission: <b>{$RES->data['title']}</b>, was modified by the site staff with the following comment:
-							 	     <br /><br />{$IN['admincomment']}";
+							 	     <br><br>{$IN['admincomment']}";
 			$MSG->dispatch();
 			
 			$MSG->data['conversation'] = $MSG->data['mid'];
@@ -261,7 +262,7 @@ class component_adm_modq {
 		$message = "Changes to this record were saved.  $exmsg
 			<p align='center'><a href='$url1'>
 			Return to the record update page</a>
-			<br /><a href='$url2'>Return to the Mod Queue</a></p>";
+			<br><a href='$url2'>Return to the Mod Queue</a></p>";
 			
 		$this->output .= $STD->global_template->message( $message );
 		
@@ -311,7 +312,8 @@ class component_adm_modq {
 			$ycnt = 0;
 			$ncnt = 0;
 			
-			while (list(,$v) = each ($dq)) {
+			//while (list(,$v) = each ($dq)) {
+			foreach ( $dq as $v ) {
 				if (empty($v))
 					break;
 					
@@ -373,23 +375,23 @@ class component_adm_modq {
 
 			if ($res->data['accept_date'] == 0)
 				$res->data['accept_date'] = time();
+			else
+				$res->data['update_date'] = time();
 				
 			$res->update();
 
-			if ($res->data['updated'] > $res->data['update_accept_date']) {
+			if (time() > $old_update_date) {
 				
 				$res->data['update_accept_date'] = time();
 				$res->update();
 				
-				$ins = $DB->format_db_values(array('rid'	=> $res->data['rid'],
-												   'change'	=> $res->data['update_reason'],
-												   'date'	=> $res->data['updated']));
+				$ins = $DB->format_db_values(array('rid' => $res->data['rid'], 'change' => $res->data['update_reason'], 'date' => time()));//$res->data['updated']));
 				$DB->query("INSERT INTO {$CFG['db_pfx']}_version ({$ins['FIELDS']}) VALUES ({$ins['VALUES']})");
 			}
 			
 			$MSG->data['title'] = 'Modification Accepted';
 			$MSG->data['message'] = "Modifications to your submission: <b>{$data['title']}</b>, were accepted with the following comment:
-									 <br /><br />{$IN['admincomment']}";
+									 <br><br>{$IN['admincomment']}";
 		} elseif ($acode == 'a') {
 			// Accept Submission
 
@@ -406,7 +408,7 @@ class component_adm_modq {
 			
 			$MSG->data['title'] = 'Submission Accepted';
 			$MSG->data['message'] = "Your submission: <b>{$data['title']}</b>, was accepted to the site with the following comment:
-							 	     <br /><br />{$IN['admincomment']}";
+							 	     <br><br>{$IN['admincomment']}";
 		}
 		
 		if ($acode == 'd') {
@@ -428,7 +430,7 @@ class component_adm_modq {
 			$MSG->data['title'] = 'Submission Declined';
 			$MSG->data['message'] = "Your submission: <b>{$data['title']}</b>, was either declined from the queue, 
 									 or removed from the existing database by the site staff with the following comment:
-							 	     <br /><br />{$IN['admincomment']}";
+							 	     <br><br>{$IN['admincomment']}";
 		}
 		
 		if ($acode == 'r') {
@@ -443,7 +445,7 @@ class component_adm_modq {
 			
 			$MSG->data['title'] = 'Submission Re-queued';
 			$MSG->data['message'] = "Your submission: <b>{$data['title']}</b>, was put back into the queue by the site staff with the following comment:
-							 	     <br /><br />{$IN['admincomment']}";
+							 	     <br><br>{$IN['admincomment']}";
 		}
 		
 		if ($acode == 'u') {
@@ -461,7 +463,7 @@ class component_adm_modq {
 			
 			$MSG->data['title'] = 'Modification Declined';
 			$MSG->data['message'] = "Your submission: <b>{$data['title']}</b> was restored to its previous state.  Your modifications were declined with the following comment:
-									 <br /><br />{$IN['admincomment']}";
+									 <br><br>{$IN['admincomment']}";
 		}
 		
 		if ($acode == 'm') {
@@ -508,7 +510,8 @@ class component_adm_modq {
 	//	$DB->query("SELECT mid,full_name FROM {$CFG['db_pfx']}_modules");
 	//	while ($row = $DB->fetch_row()) {
 		reset($STD->modules->module_set);
-		while (list(,$row) = each ($STD->modules->module_set)) {
+		//while (list(,$row) = each ($STD->modules->module_set)) {
+		foreach ( $STD->modules->module_set as $row ) {
 			$tn[] = $row['mid'];
 			$tv[] = $row['full_name'];
 		}
@@ -571,11 +574,11 @@ class component_adm_modq {
 		$data['qcode'] = "<a href='$url'>".$this->format_queue_code($row)."</a>";
 		
 		if ($row['queue_code'] == 0)
-			$actions = "<a href=\"javascript:show_hide(4);show_hide(2);set_id('rid_r',{$row['rid']});\"><img src='{$STD->tags['image_path']}/flag.gif' border='0' alt='Q' title='Re-Queue' /></a>
-						<a href=\"javascript:show_hide(1);show_hide(2);set_id('rid_d',{$row['rid']});\"><img src='{$STD->tags['image_path']}/minus.gif' border='0' alt='-' title='Decline' /></a>";
+			$actions = "<a href=\"javascript:show_hide(4);show_hide(2);set_id('rid_r',{$row['rid']});\"><img src='{$STD->tags['image_path']}/flag.gif' alt='Q' title='Re-Queue'></a>
+						<a href=\"javascript:show_hide(1);show_hide(2);set_id('rid_d',{$row['rid']});\"><img src='{$STD->tags['image_path']}/minus.gif' alt='-' title='Decline'></a>";
 		else
-			$actions = "<a href=\"javascript:show_hide(3);show_hide(2);set_id('rid_a',{$row['rid']});\"><img src='{$STD->tags['image_path']}/plus.gif' border='0' alt='+' title='Accept' /></a>
-						<a href=\"javascript:show_hide(1);show_hide(2);set_id('rid_d',{$row['rid']});\"><img src='{$STD->tags['image_path']}/minus.gif' border='0' alt='-' title='Decline' /></a>";
+			$actions = "<a href=\"javascript:show_hide(3);show_hide(2);set_id('rid_a',{$row['rid']});\"><img src='{$STD->tags['image_path']}/plus.gif' alt='+' title='Accept'></a>
+						<a href=\"javascript:show_hide(1);show_hide(2);set_id('rid_d',{$row['rid']});\"><img src='{$STD->tags['image_path']}/minus.gif' alt='-' title='Decline'></a>";
 		
 		$data['action'] = $actions;
 		
@@ -600,7 +603,8 @@ class component_adm_modq {
 			$dq = explode(';', $row['decision']);
 			$aq = array();
 			
-			while (list(,$v) = each ($dq)) {
+			//while (list(,$v) = each ($dq)) {
+			foreach ( $dq as $v ) {
 				$pair = explode(',', $v);
 				$aq[] = $pair[0];
 			}
@@ -611,7 +615,7 @@ class component_adm_modq {
 				$code = 'q_req_decision.gif';
 		}
 		
-		return "<img src='{$STD->tags['image_path']}/$code' border='0' alt='qc' title='$alt' />";
+		return "<img src='{$STD->tags['image_path']}/$code' alt='qc' title='$alt'>";
 	}
 }
 
