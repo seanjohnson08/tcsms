@@ -28,7 +28,8 @@ class component_menu {
 		else {
 			$siblings = component_menu::get_siblings($id);
 			reset($siblings);
-			while (list(,$v) = each($siblings))
+			//while (list(,$v) = each($siblings))
+			foreach ( $siblings as $v ) {
 				if (isset($exp[$v]) && $exp[$v] == '')
 					unset($exp[$v]);
 			
@@ -48,7 +49,8 @@ class component_menu {
 		
 		if ($TAG->flatnode[$id][1] == 0) {
 			reset($TAG->flatnode);
-			while (list($k,$v) = each($TAG->flatnode)) {
+			//while (list($k,$v) = each($TAG->flatnode)) {
+			foreach ( $TAG->flatnode as $k => $v ) {
 				if ($k != $id && $v[1] == 0)
 					$siblings[] = $k;
 			}
@@ -56,7 +58,8 @@ class component_menu {
 		else {
 			$pid = $TAG->flatnode[$id][1];
 			reset($TAG->flatnode[$pid][2]);
-			while (list(,$v) = each($TAG->flatnode[$pid][2])) {
+			//while (list(,$v) = each($TAG->flatnode[$pid][2])) {
+			foreach ( $TAG->flatnode[$pid][2] as $v ) {
 				if ($v != $id)
 					$siblings[] = $v;
 			}
@@ -75,7 +78,7 @@ class component_menu {
 	function format_menu_row($type, $base, $id, $text, $filter=array()) {
 		global $IN, $STD;
 		
-		$filter = @join(',', $filter);
+		$filter = join(',', $filter);
 		
 		$icon_width = '0';
 		$link = "javascript:expand_menu('$id');";
@@ -121,7 +124,7 @@ class component_menu {
 			$icon_width = 14;
 		
 		// Row
-		$html = "<table border='0' cellpadding='0' cellspacing='0'><tr>
+		$html = "<table cellpadding='0' cellspacing='0'><tr>
 				   <td valign='top' width='$icon_width'>$tree_icon</td>
 				   <td><a href=\"$txtlink\">$text</a></td></tr></table>";
 		
@@ -152,6 +155,7 @@ class component_menu {
 		$templ->addTag('rules_url', $STD->encode_url($_SERVER['PHP_SELF'], 'act=submit&param=01'));
 		$templ->addTag('staff_url', $STD->encode_url($_SERVER['PHP_SELF'], 'act=staff'));
 		$templ->addTag('links_url', $STD->encode_url($_SERVER['PHP_SELF'], 'act=links'));
+		$templ->addTag('bps_url', $STD->encode_url($_SERVER['PHP_SELF'], 'act=submit&param=04'));
 		$templ->addTag('menu', component_menu::build_menu());
 		
 		return $templ->build();
