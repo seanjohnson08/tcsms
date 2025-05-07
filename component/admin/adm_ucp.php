@@ -1,4 +1,4 @@
-'t<?php
+<?php
 //------------------------------------------------------------------
 // Taloncrossing Submission Management System 1.0
 //------------------------------------------------
@@ -100,8 +100,8 @@ class component_adm_ucp {
 		// Order shenanigans
 		$order_url = $STD->encode_url( $_SERVER['PHP_SELF'], "act=ucp&param=01&tab={$IN['tab']}&st={$IN['st']}" );
 		
-		$order_list = array('u' => 'u.username', 'g' => 'g.group_name, u.username');
-		$order_default = array('u', 'a');
+		$order_list = array('u' => 'u.username', 'g' => 'g.group_name, u.username', 'i' => 'u.uid');
+		$order_default = array('u', 'a', 'i');
 		
 		$order = $STD->order_translate( $order_list, $order_default );
 		$order_links = $STD->order_links( $order_list, $order_url, $order_default );
@@ -401,7 +401,8 @@ class component_adm_ucp {
 			if ($IN['password'] != $IN['password2'])
 				$STD->error("The passwords typed into the password boxes must match.");
 			
-			$user->data['password'] = md5($IN['password']);
+			$user->data['password'] = password_hash($IN['password'], PASSWORD_DEFAULT);
+			$user->data['new_password'] = 1;
 		}
 		
 		// Avoid promotion / demotion
@@ -433,7 +434,7 @@ class component_adm_ucp {
 		$url_main = $STD->encode_url($_SERVER['PHP_SELF']);
 		$url_back = $STD->encode_url($_SERVER['PHP_SELF'], "act=ucp&param=02&u={$IN['uid']}");
 		$message = "User <b>{$IN['username']}</b>'s account was updated successfully.
-					<p align='center'><a href='$url_back'>Return to editing user</a><br />
+					<p align='center'><a href='$url_back'>Return to editing user</a><br>
 					<a href='$url_main'>Return to the main page</a></p>";
 		
 		$this->output = $STD->global_template->page_header('User Updated');
@@ -448,9 +449,10 @@ class component_adm_ucp {
 
 		$user = new user;
 		$user->create(array('username'		=> 'New User',
-							'password'		=> md5(rand()),
+							'password'		=> password_hash(rand(), PASSWORD_DEFAULT),
 							'registered_ip'	=> '0.0.0.0',
-							'gid'			=> 5));
+							'gid'			=> 5,
+							'new_password'	=> 1));
 		$user->insert();
 		
 		$uid = $user->data['uid'];
@@ -533,7 +535,7 @@ class component_adm_ucp {
 		if (!$STD->validate_form($IN['security_token']))
 			$STD->error("The drop request did not originate from this site, or your request has allready been processed.");
 		
-		$blacks = explode("<br />", $IN['blacklist']);
+		$blacks = explode("<br>", $IN['blacklist']);
 		
 		// validate blacklist
 		foreach ($blacks as $ip) {
@@ -544,9 +546,9 @@ class component_adm_ucp {
 				$STD->error("$ip is an invalid blacklist entry");
 		}
 		
-		$blacks = @join(",", $blacks);
+		$blacks = join(",", $blacks);
 		
-		$whites = explode("<br />", $IN['whitelist']);
+		$whites = explode("<br>", $IN['whitelist']);
 		
 		// validate whitelist
 		foreach ($whites as $ex) {
@@ -557,9 +559,9 @@ class component_adm_ucp {
 				$STD->error("$ex is an invalid whitelist entry");
 		}
 		
-		$whites = @join(",", $whites);
+		$whites = join(",", $whites);
 		
-		$mails = explode("<br />", $IN['emaillist']);
+		$mails = explode("<br>", $IN['emaillist']);
 		
 		// validate email banlist
 		foreach ($mails as $fe) {
@@ -570,7 +572,7 @@ class component_adm_ucp {
 				$STD->error("$ex is an invalid whitelist entry");
 		}
 		
-		$mails = @join(",", $mails);
+		$mails = join(",", $mails);
 		
 		$CFG['blacklist'] = $blacks;
 		$CFG['whitelist'] = $whites;
@@ -584,7 +586,7 @@ class component_adm_ucp {
 		$url_main = $STD->encode_url($_SERVER['PHP_SELF']);
 		$url_back = $STD->encode_url($_SERVER['PHP_SELF'], "act=ucp&param=06");
 		$message = "The ban settings were updated successfully.
-					<p align='center'><a href='$url_back'>Return to the ban settings</a><br />
+					<p align='center'><a href='$url_back'>Return to the ban settings</a><br>
 					<a href='$url_main'>Return to the main page</a></p>";
 					
 		$this->output = $STD->global_template->page_header('Update Successful');
@@ -737,7 +739,7 @@ class component_adm_ucp {
 		$url_main = $STD->encode_url($_SERVER['PHP_SELF']);
 		$url_back = $STD->encode_url($_SERVER['PHP_SELF'], "act=ucp&param=08&gid={$IN['gid']}");
 		$message = "Group <b>{$IN['group_name']}</b> was updated successfully.
-					<p align='center'><a href='$url_back'>Return to editing group</a><br />
+					<p align='center'><a href='$url_back'>Return to editing group</a><br>
 					<a href='$url_main'>Return to the main page</a></p>";
 		
 		$this->output = $STD->global_template->page_header('Group Updated');
