@@ -93,7 +93,7 @@ class component_adm_conf {
 			for ($x=0; $x<sizeof($keywords); $x++) {
 				$keywords[$x] = preg_replace("/^[Ss]_/", "", $keywords[$x]);
 			}
-			$fl['search_tags'] = @join(",", $keywords);
+			$fl['search_tags'] = join(",", $keywords);
 			
 			$this->output .= $this->html->filter_list_row( $fl );
 		}
@@ -159,7 +159,7 @@ class component_adm_conf {
 				$keywords[$x] = "s_".$keywords[$x];
 			}
 		}
-		$keywords = @join(",", $keywords);
+		$keywords = join(",", $keywords);
 		
 		$IN['name'] = str_replace("&#39;", "'", $IN['name']);
 		$IN['short_name'] = str_replace("&#39;", "'", $IN['short_name']);
@@ -202,7 +202,7 @@ class component_adm_conf {
 				if (strlen($keywords[$x]) < 4 && !empty($keywords[$x]))
 					$keywords[$x] = "s_".$keywords[$x];
 			}
-			$keywords = @join(",", $keywords);
+			$keywords = join(",", $keywords);
 			
 			$IN['name'][$fid] = str_replace("&#39;", "'", $IN['name'][$fid]);
 			$IN['short_name'][$fid] = str_replace("&#39;", "'", $IN['short_name'][$fid]);
