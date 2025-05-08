@@ -88,8 +88,8 @@ class component_adm_news {
 
 		if (strpos($IN['content'], "{%recent_updates%}") !== FALSE) {
 			$IN['content'] = preg_replace("/\{%recent_updates%\}/", $this->create_recent_updates(), $IN['content'], 1);
-			$IN['content'] = preg_replace("/(<br\s*\/?>)*(<!--s_recent-->)/", "<br /><br /><!--s_recent-->", $IN['content']);
-			$IN['content'] = preg_replace("/(<!--e_recent-->)(<br\s*\/?>|\r|\n)*/", "<!--e_recent--><br /><br />", $IN['content']);
+			$IN['content'] = preg_replace("/(<br\s*\/?>)*(<!--s_recent-->)/", "<br><br><!--s_recent-->", $IN['content']);
+			$IN['content'] = preg_replace("/(<!--e_recent-->)(<br\s*\/?>|\r|\n)*/", "<!--e_recent--><br><br>", $IN['content']);
 			$NEWS->data['update_tag'] = 1;
 		}
 		
@@ -98,7 +98,7 @@ class component_adm_news {
 		
 		// Done
 		$message = "Your news entry has successfully been created.
-					<p align='center'><a href='{$_SERVER['PHP_SELF']}'>Return to the main page</a></p>";
+					<p align='center'><a href='".$STD->tags['root_url']."act=webhook'>Post the update on Discord and recalculate the scores</a></p>";
 		
 		$this->output = $STD->global_template->page_header('Entry Added');
 		$this->output .= $this->html->message( $message );
@@ -169,8 +169,9 @@ class component_adm_news {
 		require_once ROOT_PATH.'lib/parser.php';
 		$parser = new parser;
 		
+		$NEWS->data['message'] = preg_replace("/<!--s_recent-->[\s\S]*?<!--e_recent-->/", "{%recent_updates%}", $NEWS->data['message']);
 		$NEWS->data['message'] = $parser->unconvert($NEWS->data['message']);
-		$NEWS->data['message'] = preg_replace("/<!--s_recent-->[\\x00-\\xFF]*<!--e_recent-->/", "{%recent_updates%}", $NEWS->data['message']);
+		//OLD non-working code: $NEWS->data['message'] = preg_replace("/<!--s_recent-->[\\x00-\\xFF]*<!--e_recent-->/", "{%recent_updates%}", $NEWS->data['message']);
 		
 		$this->output = $STD->global_template->page_header('Modify News Entry');
 		
@@ -196,8 +197,8 @@ class component_adm_news {
 		if (strpos($IN['content'], "{%recent_updates%}") !== FALSE) {
 		
 			$IN['content'] = preg_replace("/\{%recent_updates%\}/", $this->create_recent_updates($NEWS->data['date']), $IN['content'], 1);
-			$IN['content'] = preg_replace("/(<br\s*\/?>)*(<!--s_recent-->)/", "<br /><br /><!--s_recent-->", $IN['content']);
-			$IN['content'] = preg_replace("/(<!--e_recent-->)(<br\s*\/?>|\r|\n)*/", "<!--e_recent--><br /><br />", $IN['content']);
+			$IN['content'] = preg_replace("/(<br\s*\/?>)*(<!--s_recent-->)/", "<br><br><!--s_recent-->", $IN['content']);
+			$IN['content'] = preg_replace("/(<!--e_recent-->)(<br\s*\/?>|\r|\n)*/", "<!--e_recent--><br><br>", $IN['content']);
 			$NEWS->data['update_tag'] = 1;
 		} else {
 			$NEWS->data['update_tag'] = 0;
