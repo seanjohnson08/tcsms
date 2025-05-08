@@ -161,7 +161,7 @@ class component_adm_panel {
 		if ($CFG['panel_expand'] && empty($sections['R']))
 			$columns['R'] = '';
 		
-		$sections['M'] = @join('', $columns);
+		$sections['M'] = join('', $columns);
 		$sections['columns'] = $col_count;
 		
 		return $sections;
@@ -230,7 +230,7 @@ class component_adm_panel {
 		if ($ple['column'] == 'D' && $ple['row'] == $maxes['D'])
 			$icons['down'] = $avail_icons['dd'];
 		
-		return @join('', $icons);
+		return join('', $icons);
 	}
 	
 	function hide_unhide () {
@@ -450,7 +450,7 @@ class component_adm_panel {
 
 function keysort ($array) {
 	ksort($array);
-	$array = @join('', $array);
+	$array = join('', $array);
 	return $array;
 }
 
