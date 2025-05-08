@@ -30,6 +30,7 @@ class component_login {
 			case 7: $this->validate_change(); break;
 			case 8: $this->do_change_password(); break;
 			case 9: $this->show_lost_username(); break;
+			case 10: $this->force_password_change(); break;
 		}
 		
 		$STD->template->display( $this->output );
@@ -56,7 +57,7 @@ class component_login {
 	
 		for ( $x=0; $x<6; $x++ ) {
 			$idx = rand(0, strlen($chars) - 1 );
-			$str .= $chars{$idx};
+			$str .= $chars[$idx]; // 3/23/2025 Vinny fix - had been curly braces, a deprecated style
 		}
 		
 		$time = time();
@@ -81,8 +82,13 @@ class component_login {
 		
 		if (!$session->check_login($IN['username'], $IN['password'], 1))
 			$STD->error("The username or password is incorrect");
-		
-		header("Location: ".$STD->encode_url($_SERVER['PHP_SELF']));
+
+		if ($STD->user['new_password'] == 1) {
+			header("Location: ".$STD->encode_url($_SERVER['PHP_SELF']));
+		}
+		else { // OLD PASSWORD!!! CHANGE IT!!! NOW!!!
+			header("Location: ".$_SERVER['PHP_SELF'].'?act=login&param=10');
+		}
 		exit;
 	}
 	
@@ -98,13 +104,14 @@ class component_login {
 	function do_register () {
 		global $IN, $STD, $CFG, $DB, $session;
 		
-		$sess = $session->sess_id;
+		//$sess = $session->sess_id;
 		
 		// Form Validation
 		//if (!$STD->validate_form($IN['security_token']))
 		//	$STD->error("The registration request did not originate from this site, or you attempted to repeat a completed transaction.");
 		
 		// Captcha
+		/*
 		$DB->query( "SELECT regcode FROM {$CFG['db_pfx']}_sec_images WHERE sessid = '{$sess}'" );
 		$row = $DB->fetch_row();
 		
@@ -113,18 +120,45 @@ class component_login {
 		}
 		elseif ( strtolower($row['regcode']) != strtolower($IN['regcode']) ) {
 			$STD->error( "Security Code Invalid" );
+		}*/
+
+		$captcha;
+        if(isset($_POST['g-recaptcha-response'])){
+          $captcha=$_POST['g-recaptcha-response'];
+        }
+        if(!$captcha){
+          $STD->error( "Please complete the captcha" );
+        }
+        $secretKey = "6LeCUbIUAAAAAEYnvv5ZZMBEYiReXE9d7p8wtKbb";
+		$ip = $_SERVER['REMOTE_ADDR'];
+		
+        $url = 'https://www.google.com/recaptcha/api/siteverify?secret=' . urlencode($secretKey) .  '&response=' . urlencode($captcha);
+        $response = file_get_contents($url);
+		$responseKeys = json_decode($response,true);
+		
+        if(!$responseKeys["success"]) {
+			$STD->error( "Captcha failed." );
 		}
 		
 		// Fields
+
+		if (strlen($IN['password']) < 8) {
+			$STD->error("Your password needs to be 8 characters or more.");
+		}
+		
+		if (!preg_match("@[0-9]@", $IN['password'])) {
+			$STD->error("Your password must include at least one number!");
+		}
+		
+		if (!preg_match("@[a-zA-Z]@", $IN['password'])) {
+			$STD->error("Your password must include at least one letter!");
+		}   
 		
 		if (empty($IN['username']) || empty($IN['password']) || empty($IN['email']))
 			$STD->error("One or more required fields were left blank.");
 		
 		if (!preg_match($STD->get_regex('email'), $IN['email']))
 			$STD->error("Email address is invalid.");
-		
-		if (!preg_match($STD->get_regex('url'), $IN['weburl']) || empty($IN['website']))
-			$IN['weburl'] = '';
 		
 		if (!preg_match($STD->get_regex('url'), $IN['image']))
 			$IN['image'] = '';
@@ -150,11 +184,10 @@ class component_login {
 			
 		// Process Form
 		$user->data['username'] = $IN['username'];
-		$user->data['password'] = md5($IN['password']);
+		$user->data['password'] = password_hash($IN['password'], PASSWORD_DEFAULT);
+		$user->data['new_password'] = 1;
 		$user->data['email']	= $IN['email'];
 		$user->data['icon']		= $IN['image'];
-		$user->data['website']	= $IN['website'];
-		$user->data['weburl']	= $IN['weburl'];
 		$user->data['skin']		= 0;
 		$user->data['show_thumbs'] = 1;
 		$user->data['use_comment_msg'] = 1;
@@ -173,8 +206,8 @@ class component_login {
 
 		$url = $STD->encode_url($_SERVER['PHP_SELF']);
 		$username = htmlspecialchars($IN['username']);
-		$message = "Congratulations, your new account, <b>$username</b>, has been registered.<br /><br />
-					Use the login form on the left side to login for the first time.  From the menu under your name, 
+		$message = "Congratulations, your new account, <b>$username</b>, has been registered.<br><br>
+					Use the login form on the left side to log in for the first time.  From the menu under your name, 
 					you'll be able to submit new files to the site, manage and update your existing submissions, 
 					change your viewing preferences for this site, and view messages tracking your submissions.
 					<p align='center'><a href='$url'>Return to the main page</a></p>";
@@ -306,34 +339,74 @@ class component_login {
 		$this->output .= $STD->global_template->page_footer();
 	}
 		
-	function do_change_password () {
+	function force_password_change() {
 		global $STD, $IN;
+
+		if ($STD->user['new_password'] == 1)
+			$STD->error("Please change your password in your preferences page.");
+
+		$this->output .= $STD->global_template->page_header('Please Change Your Password to Continue');
 		
-		if (empty($IN['username']) || empty($IN['pass1']) || empty($IN['pass2']))
+		$url = $STD->encode_url($_SERVER['PHP_SELF'],'act=login&param=08');
+		
+		$this->output .= $this->html->change_password( $url, $STD->make_form_token(), $STD->user['cookie'] );
+		
+		$this->output .= $STD->global_template->page_footer();
+	}
+		
+
+	function do_change_password() {
+		global $STD, $IN, $session;
+				
+		if (strlen($IN['pass1']) < 8) {
+			$STD->error("Your password needs to be 8 characters or more.");
+		}
+		
+		if (!preg_match("@[0-9]@", $IN['pass1'])) {
+			$STD->error("Your password must include at least one number!");
+		}
+		
+		if (!preg_match("@[a-zA-Z]@", $IN['pass1'])) {
+			$STD->error("Your password must include at least one letter!");
+		}     
+		
+		if (empty($IN['username']) || empty($IN['pass1']) || empty($IN['pass2'])) {
 			$STD->error("You must fill out all the fields in the form.");
-		
-		if ($IN['pass1'] != $IN['pass2'])
+		}
+
+		if ($IN['pass1'] != $IN['pass2']) {
 			$STD->error("Your passwords do not match.  Please go back and correct this.");
-		
+		}
+
+		if (!empty($STD->user['uid']) && (md5($IN['pass1']) == $STD->user['password'] || password_verify($IN['pass1'], $STD->user['password']))) {
+			$STD->error("You can't use the same password as before.");
+		}
+
 		$user = new user;
 		$user->query_condition("cookie = '{$IN['cookie']}'");
 		if (!$user->getByName($IN['username']))
 			$STD->error("The username you supplied is not valid for this change request.");
 		
-		$user->data['password'] = md5($IN['pass1']);
+		$user->data['password'] = password_hash($IN['pass1'], PASSWORD_DEFAULT);
+		$user->data['new_password'] = 1;
 		$user->update();
+
+		// Log out if already logged in
+		if (!empty($STD->user['uid'])) {
+			$session->check_logout();
+		}
 		
 		// Done here
 		
 		$url = $STD->encode_url($_SERVER['PHP_SELF']);
-		$message = "Your password has successfully been changed.  You may now login.
+		$message = "Your password has successfully been changed.  You may now log in.
 					<p align='center'><a href='$url'>Return to the main page</a></p>";
 		
 		$this->output = $STD->global_template->message($message);
 		
 		$STD->clear_form_token();
 	}
-		
+
 }
 
 ?>
