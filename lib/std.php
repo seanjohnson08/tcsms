@@ -25,6 +25,7 @@ Class template {
 	var $skin		= 0;
 	var $override 	= array();
 	var $php_errors = array();
+	var $content_only; // 4/30/2025 dynamic properties fix for admin login
 	
 	function init () {
 //		global $SAJAX;
@@ -116,8 +117,8 @@ Class template {
 	function display ($out, $title='') {
 		global $DB, $STD, $session;
 		
-		$STD->global_template->title = $title;
-		
+		//$STD->global_template->title = $title; // 4/29/2025 - this might not be needed
+		ob_start();
 		ob_get_clean();
 		
 		if ($DB->debug) {
@@ -145,17 +146,17 @@ Class template {
 			$output .= $STD->global_template->site_content_footer();
 		}
 		
-		$err = @join('<br /><br />', $this->php_errors);
+		$err = join('<br><br>', $this->php_errors);
 		
 		$sess = "<!--({$session->sess_fail}) Session Status-->";
-		
+
 		echo $sess . $err . $output;
 		
 		ob_flush();
 	}
 	
 	function error ($data) {
-		global $STD;
+		global $STD, $upload_msg, $global_error;
 		
 		if (empty($STD->global_template)) {
 			if (!empty($STD->template->override['template']) && $STD->template->override['template'] == 'admin') {
@@ -169,7 +170,14 @@ Class template {
 			$STD->tags = $STD->template->global_tags();
 		}
 
+		$upload_msg = $data;
+		$global_error = 1;
 		$STD->template->display( $STD->global_template->error( $data ) );
+		if (!$STD->template->override['template'] == 'admin')
+		{
+			header("Location: https://mfgg.net/index.php?act=notice&msg=".$msg."&done=1", true, 301);
+		}
+		/*header("Location: https://mfgg.net/index.php?act=notice&msg=".$data);*/
 		exit;
 	}
 		
@@ -183,8 +191,8 @@ Class template {
 				 An unrecoverable error has ouccurred.  Please wait a few minutes and
 				 try again.  If the error still persists, please contact the 
 				 <a href='mailto:{$CFG['admin_email']}'>Site Staff</a> with the error information
-				 below.<br /><br /><p align='center'>
-				 <table border='0' cellspacing='0' cellpadding='2' width='80%'><tr>
+				 below.<br><br><p align='center'>
+				 <table cellspacing='0' cellpadding='2' width='80%'><tr>
 				 <td width='100%' style='font-family:Courier New'>
 				 $msg
 				 </td></tr></table></p></body></html>";
@@ -217,6 +225,7 @@ Class template {
 			'template_path'		=> ROOT_PATH.$CFG['template_path'].'/'.$this->skin,
 			'image_path'		=> ROOT_PATH.$CFG['template_path'].'/'.$this->skin.'/images',
 			'global_image_path'	=> ROOT_PATH.$CFG['template_path'].'/images',
+			'base_template_path'=> ROOT_PATH.$CFG['template_path'].'/base',
 			'skin'				=> $this->skin,
 			'PHP_SELF'			=> $_SERVER['PHP_SELF'],
 			'root_url'			=> $STD->make_root_url($_SERVER['PHP_SELF']),
@@ -260,6 +269,8 @@ Class std {
 	var $tags				= array();
 	var $user				= array();
 	var $userobj			= null;
+	var $modules;
+	var $global_template_ui;
 	
 	function _clone ($obj) {
 		if (PHP_VERSION < 5) {
@@ -277,7 +288,12 @@ Class std {
 			$STD->template->display($CFG['offline_msg']);
 			exit;
 		}
-		
+		$_SESSION['submit_message'] = $msg;
+		$_SESSION['error_code'] = 1;
+		if (!$STD->template->override['template'] == 'admin')
+		{
+			header("Location: https://mfgg.net/index.php?act=notice&msg=".str_rot13($msg)."&done=1", true, 301);
+		}
 		$STD->template->error($msg);
 	}
 	
@@ -318,12 +334,14 @@ Class std {
 		$IN = array();
 		
 		reset ($_GET);
-		while (list($key,$val) = @each($_GET)) {
+		//while (list($key,$val) = each($_GET)) {
+		foreach ( $_GET as $key => $val ) {
 			$IN[$key] = $this->clean_value($val);
 		}
 		
 		reset ($_POST);
-		while (list($key,$val) = @each($_POST)) {
+		//while (list($key,$val) = each($_POST)) {
+		foreach ( $_POST as $key => $val ) {
 			$IN[$key] = $this->clean_value($val);
 		}
 		
@@ -340,20 +358,21 @@ Class std {
 	function clean_value ($value) {
 		
 		if (is_array($value)) {
-			while (list($key,$val) = @each($value)) {
+			//while (list($key,$val) = @each($value)) {
+			foreach ( $value as $key => $val ) {
 				$value[$key] = $this->clean_value($val);
 			}
 		} else {
-			if (get_magic_quotes_gpc()) {
-				//$value = stripslashes($value);
-			}
+			//if (get_magic_quotes_gpc()) {
+			$value = stripslashes($value);
+			//}
 		
 			$value = trim(rtrim($value));
 			$value = str_replace("'", "&#39;", $value);
 			$value = str_replace("\"", "&quot;", $value);
 			$value = str_replace("<", "&lt;", $value);
 			$value = str_replace(">", "&gt;", $value);
-			$value = preg_replace("/\n/", "<br />", $value);
+			$value = preg_replace("/\n/", "<br>", $value);
 			$value = preg_replace("/\r/", "", $value);
 		}
 		
@@ -362,9 +381,8 @@ Class std {
 	
 	function rawclean_value ($value) {
 		
-		if (get_magic_quotes_gpc()) {
-			$value = stripslashes($value);
-		}
+		//if (get_magic_quotes_gpc()) {
+		$value = stripslashes($value);
 		
 		$value = trim(rtrim($value));
 		$value = preg_replace("/\r/", "", $value);
@@ -377,7 +395,7 @@ Class std {
 		$value = str_replace("\"", "&quot;", $value);
 		$value = str_replace("<", "&lt;", $value);
 		$value = str_replace(">", "&gt;", $value);
-		$value = preg_replace("/\n/", "<br />", $value);
+		$value = preg_replace("/\n/", "<br>", $value);
 		$value = preg_replace("/\r/", "", $value);
 		
 		return $value;
@@ -438,7 +456,8 @@ Class std {
 		
 		$out = '';
 		reset($arr);
-		while (list($k,$v) = each($arr)) {
+		//while (list($k,$v) = each($arr)) {
+		foreach ( $arr as $k => $v ) {
 			if (is_array($v))
 				$arr[$k] = $this->csv_merge($v);
 			$out .= $v.',';
@@ -458,7 +477,7 @@ Class std {
 			$ext = $sn[(sizeof($sn)-1)];
 			unset($sn[(sizeof($sn)-1)]);
 		}
-		$sn = @join ('.', $sn);
+		$sn = join ('.', $sn);
 		
 		$tail = time().'.'.$ext;
 		$sn = preg_replace("/[^A-Za-z0-9]/", '_', $sn);
@@ -507,7 +526,7 @@ Class std {
 			$str = substr($str, 0, $maxlen);
 		
 		// Chop up words
-		$str = str_replace("<br />", " <br /> ", $str);
+		$str = str_replace("<br>", " <br> ", $str);
 		$str = explode(' ', $str);
 		
 		// trim URLs
@@ -515,10 +534,10 @@ Class std {
 									  array (&$this, 'shrink_url'), $str);
 		
 		//for ($x=0; $x<sizeof($str); $x++)
-		//	$str[$x] = wordwrap($str[$x], 45, "<br />", 1);
+		//	$str[$x] = wordwrap($str[$x], 45, "<br>", 1);
 		
-		$str = @join(' ', $str);
-		$str = str_replace(" <br /> ", "<br />", $str);
+		$str = join(' ', $str);
+		$str = str_replace(" <br> ", "<br>", $str);
 		
 		return $str;
 	}
@@ -630,7 +649,7 @@ Class std {
 		else
 			$idname = '';
 			
-		$box = "<select name='$name' $idname size='1' class='$class' $other>\n";
+		$box = "<select name='$name' $idname size='1' class='$class' title='Search Filter' $other>\n";
 		for ($x=0; $x<sizeof($value); $x++) {
 			($selected == $value[$x]) ? $sel = "selected='selected'" : $sel = '';
 			$box .= "<option value='{$value[$x]}' $sel>{$text[$x]}</option>\n";
@@ -645,8 +664,8 @@ Class std {
 		$sel1 = ''; $sel2 = '';
 		($selected == 1) ? $sel1 = "checked='checked'" : $sel2 = "checked='checked'";
 		($disabled == 1) ? $dis = "disabled='disabled'" : $dis = '';
-		$box = "<input type='radio' name='$name' value='1' class='radiobutton' $sel1 $dis /> Yes &nbsp; 
-			<input type='radio' name='$name' value='0' class='radiobutton' $sel2 $dis /> No";
+		$box = "<input type='radio' name='$name' value='1' class='radiobutton' title='Yes Option' $sel1 $dis> Yes &nbsp; 
+			<input type='radio' name='$name' value='0' class='radiobutton' title='No Option' $sel2 $dis> No";
 		
 		return $box;
 	}
@@ -654,7 +673,7 @@ Class std {
 	function make_checkbox ($name, $value, $selected='') {
 		
 		($selected) ? $selected = "checked='checked'" : $selected = '';
-		$box = "<input type='checkbox' name='$name' value='1' $selected' />";
+		$box = "<input type='checkbox' name='$name' title='Checkbox' value='1' $selected>";
 		
 		return $box;
 	}
@@ -669,8 +688,8 @@ Class std {
 			if ($selected[$x])
 				$lselected = "checked='checked'";
 				
-			$html .= "<input type='checkbox' name='{$name}' value='{$value[$x]}' 
-				$lselected /> {$txtname}<br />";
+			$html .= "<input type='checkbox' name='{$name}' title='Checkbox' value='{$value[$x]}' 
+				$lselected> {$txtname}<br>";
 		}
 		
 		$html = preg_replace("/<br \/>$/", '', $html);
@@ -780,6 +799,59 @@ Class std {
 		return $user;
 	}
 	
+	function format_username_uid ($uid) {
+		//global $STD;
+		
+		$user = '<b>N/A</b>';
+		
+		//$whater = $DB->format_db_where_string(array('aa.uid' => $uid)); 
+		$u_query = "SELECT aa.uid, aa.gid, aa.username, bb.name_prefix, bb.name_suffix FROM {$CFG['db_pfx']}_users aa ".
+		"INNER JOIN {$CFG['db_pfx']}_groups bb ON (aa.gid=bb.gid) ".
+		"WHERE aa.uid = {$uid}";
+		//establish Alt MySQL connection
+		$alt_connection1 = mysqli_connect($CFG['db_host'],$CFG['db_user'],$CFG['db_pass'],$CFG['db_db']);
+			
+			//throw an error if connection failed
+			if ($alt_connection1->connect_errno)
+			{
+				$STD->error("CRITICAL ERROR: Failed to connect to MySQL: (" . $alt_connection1->connect_errno . ") " . $current_connection->connect_error);
+			}
+			
+			//perform the query
+			$u_output = array();
+			$ucount = 0;
+			if (mysqli_multi_query($alt_connection1,$u_query))
+			{
+				do
+				{
+					// Store first result set
+					if ($result1 = mysqli_store_result($alt_connection1))
+					{
+						// Fetch one and one row
+						while ($lrowu = mysqli_fetch_row($result1))
+						{
+							array_push($u_output,$lrowu);
+							$ucount = 1;
+						}
+						// Free result set
+						mysqli_free_result($result1);
+					}
+				}
+				while (mysqli_more_results($alt_connection1));
+			}
+			
+			//shut down MySQL
+			mysqli_close($alt_connection1);
+			
+		if ($ucount != 0)
+		{
+			$user_url = $STD->encode_url($_SERVER['PHP_SELF'], "act=user&param=01&uid=".$u_output[0][0]);
+			$user = "<a href='{$user_url}'>".$u_output[0][3].$u_output[0][2].$u_output[0][4]."</a>";
+		}
+		
+		return $user;
+	}
+	
 	function get_email_icon (&$row, $prefix='') {
 		global $CFG, $IN, $STD;
 		
@@ -790,7 +862,7 @@ Class std {
 			$addr = str_replace('.', ' _DOT_ ', $addr);
 			$uaddr = str_replace(' ', '%20', $addr);
 			$email = "<a href='mailto:$uaddr'>
-				<img src='{$STD->tags['image_path']}/email.gif' border='0' alt='[E]' title='Email: $addr' /></a>";
+				<img src='{$STD->tags['global_image_path']}/email.gif' alt='[E]' title='Email: $addr'></a>";
 		}
 		
 		return $email;
@@ -805,10 +877,10 @@ Class std {
 		empty($row[$prefix.'website'])
 			? $website = ''
 			: $website = "
-				<img src='{$STD->tags['image_path']}/$ws_icon' border='0' alt='[W]' title='Website: {$row[$prefix.'website']}' />";
+				<img src='{$STD->tags['global_image_path']}/$ws_icon' alt='[W]' title='Website: {$row[$prefix.'website']}'>";
 		if (!empty($row[$prefix.'website_override']))
 			$website = "
-				<img src='{$STD->tags['image_path']}/$ws_icon' border='0' alt='[W]' title='Website: {$row[$prefix.'website_override']}' />";
+				<img src='{$STD->tags['global_image_path']}/$ws_icon' alt='[W]' title='Website: {$row[$prefix.'website_override']}'>";
 		if (!empty($row[$prefix.'weburl_override']))
 			$website = "<a href='{$row[$prefix.'weburl_override']}'>$website</a>";
 		elseif (!empty($row[$prefix.'weburl']))
@@ -825,7 +897,7 @@ Class std {
 			if (empty($CFG['default_icon']))
 				return '';
 				
-			return "<img src='{$CFG['default_icon']}' border='0' alt='No Icon' />";
+			return "<img src='{$CFG['default_icon']}' alt='No Icon' class='avatar'>";
 		}
 			
 		if (empty($row[$prefix.'icon_dims']))
@@ -836,9 +908,39 @@ Class std {
 		if (empty($dims[0]) || empty($dims[1]))
 			$dims = explode("x", $CFG['def_icon_dims']);
 		
-		$icon = "<img src='{$row[$prefix.'icon']}' width='{$dims[0]}' height='{$dims[1]}' border='0' alt='User Icon' />";
+		$valid_img = $STD->url_is_image($CFG['default_icon']);
+		
+		if ($valid_img == false)
+		{
+			return "<img src='{$CFG['default_icon_defective']}' alt='No Icon' class='avatar'>";
+		}
+		
+		$img_final = preg_replace("/^http:/i", "https:", $row[$prefix.'icon']);
+		
+		$icon = "<img src='{$img_final}' alt='User Icon' class='avatar' onerror='this.src=".'"'.$CFG['default_icon_defective'].'";'."'>"; //width='{$dims[0]}' height='{$dims[1]}'
 		
 		return $icon;
+	}
+	
+	function url_is_image( $url ) {
+		/*$ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL,$url);
+    // don't download content
+    curl_setopt($ch, CURLOPT_NOBODY, 1);
+    curl_setopt($ch, CURLOPT_FAILONERROR, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    if(curl_exec($ch)!==FALSE)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+    }
+
+    fclose($fp);*/
+    return true;
 	}
 	
 	function get_page_prefs () {
@@ -864,7 +966,6 @@ Class std {
 		if ($pcount > 200) $inc = 100;
 		if ($pcount > 2000) $inc = 1000;
 		
-
 		$pages = '';
 		$pages_s = '';
 		$pages_e = '';
@@ -929,7 +1030,8 @@ Class std {
 		else
 			$op = explode(',', $IN['o']);
 		
-		while ( list( $k,$v ) = each( $orderlist ) )
+		//while ( list( $k,$v ) = each( $orderlist ) )
+		foreach ( $orderlist as $k => $v )
 		{
 			if ($k == $op[0])
 				$op[0] = $v;
@@ -951,12 +1053,13 @@ Class std {
 		else
 			$op = explode(',', $IN['o']);
 			
-		$asc = "<img src='{$STD->tags['image_path']}/ASC.gif' />";
-		$desc = "<img src='{$STD->tags['image_path']}/DESC.gif' />";
+		$asc = "<img src='{$STD->tags['global_image_path']}/ASC.gif' alt='Ascending Arrow'>";
+		$desc = "<img src='{$STD->tags['global_image_path']}/DESC.gif' alt='Descending Arrow'>";
 		
 		$out = array();
 		
-		while ( list( $k,$v ) = each( $orderlist ) )
+		//while ( list( $k,$v ) = each( $orderlist ) )
+		foreach ( $orderlist as $k => $v )	
 		{
 			$out[$k] = array();
 			$dir = $defaults[1];
@@ -1227,7 +1330,8 @@ class table_frame {
 		$ndata = array();
 		
 		reset($this->data);
-		while (list($k,$v) = each($this->data))
+		//while (list($k,$v) = each($this->data))
+		foreach ( $this->data as $k => $v )
 			$ndata[$prefix.$k] = $v;
 		
 		return $ndata;
@@ -1237,7 +1341,8 @@ class table_frame {
 		$ndata = array();
 		
 		reset($data);
-		while (list($k,$v) = each($data)) {
+		//while (list($k,$v) = each($data)) {
+		foreach ( $data as $k => $v ) {
 			$k = preg_replace("/^$prefix/", '', $k);
 			$ndata[$k] = $v;
 		}
@@ -1305,7 +1410,8 @@ class table_frame {
 					   "{$p}_timezone,{$p}.dst {$p}_dst,{$p}.icon_dims {$p}_icon_dims,{$p}.cur_msgs {$p}_cur_msgs,".
 					   "{$p}.show_thumbs {$p}_show_thumbs,{$p}.use_comment_msg {$p}_use_comment_msg,".
 					   "{$p}.use_comment_digest {$p}_use_comment_digest,{$p}.last_visit {$p}_last_visit,".
-					   "{$p}.last_activity {$p}_last_activity";
+					   "{$p}.last_activity {$p}_last_activity, {$p}.discord {$p}discord, {$p}.twitter {$p}twitter,".
+						"{$p}.steam {$p}steam, {$p}.reddit {$p}, {$p}.twitch {$p}twitch";
 			case 'groups':
 				return ",{$p}.gid {$p}_gid,{$p}.name_prefix {$p}_name_prefix,{$p}.name_suffix {$p}_name_suffix,".
 					   "{$p}.use_bbcode {$p}_use_bbcode";
@@ -1329,7 +1435,8 @@ class table_frame {
 	}
 }
 
-function php_err_handler ($no, $str, $file, $line, $ctx) {
+//function php_err_handler ($no, $str, $file, $line, $ctx) {
+function php_err_handler ($no, $str, $file, $line) {
 	global $STD;
 	
 	switch ($no) {
