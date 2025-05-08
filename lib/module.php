@@ -15,6 +15,7 @@ class module_record extends table_frame {
 	var $module_set		= array();
 	var $module_set_n	= array();
 	var $initialized	= 0;
+	var $modules;
 	
 	function get ($mid) {
 		global $CFG, $DB, $STD;
@@ -195,7 +196,8 @@ class module_record extends table_frame {
 			$this->load_module_list();
 		
 		reset($this->module_set);
-		while (list($k,$v) = each($this->module_set))
+		//while (list($k,$v) = each($this->module_set))
+		foreach ( $this->module_set as $k => $v )
 			if (in_array($mid, $v['children']))
 				return $k;
 		
