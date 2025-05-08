@@ -8,7 +8,7 @@ return <<<HTML
 <form method="post" action="{$login_url}">
 <div style="width:70%; margin-left:auto; margin-right:auto;">
 <input type="hidden" name="security_token" value="{$token}" />
-<br />
+<br>
 <table border="0" cellpadding="4" cellspacing="0" width="100%" style="border:2px solid #000000;">
 <tr>
   <td class="header">Login</td>
@@ -17,14 +17,14 @@ return <<<HTML
 <td class="body">
 Enter your login details to continue
 <div style="margin-left:20px">
-<br />
+<br>
 <table border="0" cellspacing="0" cellpadding="1" width="100%">
   <tr>
     <td class="title_fixed">
       <label for="username">Username</label>
     </td>
     <td class="field_fixed">
-      <input type="text" id="username" name="username" size="40" class="textbox" alt="Username" />
+      <input type="text" id="username" name="username" size="40" class="textbox" />
     </td>
   </tr>
   <tr>
@@ -32,12 +32,12 @@ Enter your login details to continue
       <label for="password">Password</label>
     </td>
     <td class="field_fixed">
-      <input type="password" id="password" name="password" size="40" class="textbox" alt="Password" />
+      <input type="password" id="password" name="password" size="40" class="textbox" />
     </td>
   </tr>
 </table>
 </div>
-<br />
+<br>
 <div style="text-align:center">
   <input type="submit" value="Login" class="button" />
 </div>
@@ -46,7 +46,7 @@ Enter your login details to continue
 </table>
 </div>
 </form>
-<br />
+<br>
 {$error}
 HTML;
 }
