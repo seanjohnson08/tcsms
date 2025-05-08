@@ -152,6 +152,7 @@ class user extends table_frame {
 		$ndata['use_comment_digest']= (!isset($data[$p.'use_comment_digest']))	? 0		: $data[$p.'use_comment_digest'];
 		$ndata['last_visit']		= (!isset($data[$p.'last_visit']))		? 0		: $data[$p.'last_visit'];
 		$ndata['last_activity']		= (!isset($data[$p.'last_activity']))	? 0		: $data[$p.'last_activity'];
+		$ndata['new_password']		= (!isset($data[$p.'new_password']))	? 1		: $data[$p.'new_password'];
 		
 		$this->data = $ndata;
 	}
@@ -223,7 +224,7 @@ class user extends table_frame {
 			return;
 		}
 		
-		$mesg = "You have recieved one or more comments on the following submissions since your last visit:<br /><ul>";
+		$mesg = "You have recieved one or more comments on the following submissions since your last visit:<br><ul>";
 
 		while ($row = $DB->fetch_row()) {
 			$location = "act=resdb&param=02&c={$row['type']}&id={$row['rid']}&st=new";
@@ -374,27 +375,39 @@ class session {
 	var $user			= array();
 	var $data			= array();
 	
-	var $bots			= array();
-	
-	//function session () {
-	function __construct () {
-		$this->phpver = phpversion();
-		
-		$this->bots = array (
+	var $bots			= array (
 			'Alexa'				=> 'ia_archiver',
-			'Baiduspider'		=> 'Baiduspider',
-			'Exabot'			=> 'Exabot',
-			'Gigabot'			=> 'Gigabot',
-			'Google'			=> 'Googlebot',
-			'Google Adsense'	=> 'Mediapartners-Google',
-			'MSN'				=> 'msnbot',
-			'MSRBOT'			=> 'MSRBOT',
-			'Twiceler'			=> 'Twiceler',
-			'Yahoo'				=> 'Yahoo! Slurp',
+			'Amazon'				=> 'Amazon',
+			'Applebot'				=> 'Applebot',
+			'Archive.org'		=> 'archive.org_bot',
+			'Baiduspider'			=> 'Baidu',
+			'Barkrowler'		=> 'Barkrowler',
+			'Bingbot'			=> 'Bingbot',
+			'Bytespider'		=> 'Bytespider',
+			'ChatGPT'			=> 'ChatGPT',
+			'ClaudeBot'			=> 'ClaudeBot',
+			'Discordbot'			=> 'Discord',
+			'DotBot'			=> 'DotBot',
+			'DuckDuckBot'			=> 'DuckDuckGo',
+			//'Exabot'			=> 'Exabot',
+			'facebookexternalhit'	=> 'Facebook',
+			//'Gigabot'			=> 'Gigabot',
+			'Googlebot'			=> 'Google',
+			'GoogleOther'			=> 'GoogleOther',
+			'GPTBot'			=> 'GPTBot',
+			//'Google Adsense'		=> 'Mediapartners-Google',
+			'meta-externalagent'	=> 'Meta',
+			'Majestic'				=> 'MJ12bot',
+			//'MSN'				=> 'msnbot',
+			//'MSRBOT'			=> 'MSRBOT',
+			'SemrushBot'		=> 'Semrush',
+			'TikTokSpider'		=> 'TikTok',
+			//'Twiceler'			=> 'Twiceler',
+			'Twitterbot' 			=> 'Twitter',
+			//'Yahoo'				=> 'Yahoo! Slurp',
+			'Yandex'				=> 'Yandex',
 		);
-		
-		
-	}
+	//}
 	
 	function is_bot () {
 		$ua = $_SERVER['HTTP_USER_AGENT'];
@@ -483,7 +496,7 @@ class session {
 		$data = rawurlencode ("{$CFG['cookie_prefix']}{$name}") . '=' . rawurlencode ($value);
 		$path = !empty ($CFG['cookie_path']) ? "; path={$CFG['cookie_path']}" : '';
 		$domain = !empty ($CFG['cookie_domain']) ? "; domain={$CFG['cookie_domain']}" : '';
-		
+
 		header ("Set-Cookie: {$data}{$expdate}{$path}{$domain}; HttpOnly", false);
 	}
 	
@@ -516,7 +529,7 @@ class session {
 	
 	function authorize () {
 		global $CFG, $STD, $DB, $IN;
-		
+
 		$this->sess_id = $this->get_session_id();
 
 		$session_active = 1;
@@ -532,7 +545,7 @@ class session {
 		
 		$dbsess = array();
 		
-		if ($session_active) {
+		if ($session_active) {	
 			$DB->query ("SELECT s.*, u.username, u.cookie, u.last_visit, u.last_activity, u.last_ip
 						 FROM {$CFG['db_pfx']}_sessions s 
 						   LEFT JOIN {$CFG['db_pfx']}_users u ON (s.uid = u.uid)
@@ -602,14 +615,14 @@ class session {
 			// proxies wrecking havoc.
 			
 			$remote_addr = trim ($_SERVER['REMOTE_ADDR']);
-			if (!preg_match ("/^\d{1,3}\.\d{1,3}.\d{1,3}.\d{1,3}$/", $remote_addr) && $remote_addr != '::1' ) {
+			if (!preg_match ("/^\d{1,3}\.\d{1,3}.\d{1,3}.\d{1,3}$/", $remote_addr) ) {
 				$session_pass = 0;
 				$this->sess_fail .= '.11';
 			}
 			
 			$db_ip = preg_replace ("/\.\d{1,3}\.\d{1,3}$/", '', $dbsess['ip']);
 			$curr_ip = preg_replace ("/\.\d{1,3}\.\d{1,3}$/", '', $_SERVER['REMOTE_ADDR']);
-			if ($db_ip != $curr_ip && $remote_addr != '::1') {
+			if ($db_ip != $curr_ip) {
 				$session_pass = 0;
 				$this->sess_fail .= '.12';
 			}
@@ -617,7 +630,7 @@ class session {
 			//---------------------------------------------
 			// We also enforce a user-agent check.
 			
-			$user_agent = substr (trim ($_SERVER['HTTP_USER_AGENT']), 0, 72);
+			$user_agent = substr (trim ($_SERVER['HTTP_USER_AGENT']), 0, 128); // Was originally 72
 			if ($dbsess['user_agent'] != $user_agent) {
 				$session_pass = 0;
 				$this->sess_fail .= '.13';
@@ -654,14 +667,14 @@ class session {
 				
 				$remote_addr = trim ($_SERVER['REMOTE_ADDR']);
 				if (!preg_match ("/^\d{1,3}\.\d{1,3}.\d{1,3}.\d{1,3}$/", $remote_addr) ) {
-					$session_pass = 0;
+					//$session_pass = 0;
 					$this->sess_fail .= '.17';
 				}
 				
 				$db_ip = preg_replace ("/\.\d{1,3}\.\d{1,3}$/", '', $dbsess['last_ip']);
 				$curr_ip = preg_replace ("/\.\d{1,3}\.\d{1,3}$/", '', $_SERVER['REMOTE_ADDR']);
 				if ($db_ip != $curr_ip) {
-					$session_pass = 0;
+					//$session_pass = 0;
 					$this->sess_fail .= '.18';
 				}
 			}
@@ -677,7 +690,8 @@ class session {
 		$banned = 0;
 		$mip = explode('.', $_SERVER['REMOTE_ADDR']);
 		$blacklist = explode(',', $CFG['blacklist']);
-		while (list(,$val) = each($blacklist)) {
+		//while (list(,$val) = each($blacklist)) {
+		foreach ( $blacklist as $val ) {
 			$bip = explode('.', $val);
 			
 			for ($x=0; $x<sizeof($bip); $x++) {
@@ -705,7 +719,7 @@ class session {
 		
 		//-------------------------------------------------
 		// Set or update the appropriate session
-		
+				
 		if ($session_pass) {
 			if ($session_active) {
 				$this->update_session ($dbsess);
@@ -749,7 +763,7 @@ class session {
 		
 		$basetime = time();
 		$remote_addr = trim ($_SERVER['REMOTE_ADDR']);
-		$user_agent = substr (trim ($_SERVER['HTTP_USER_AGENT']), 0, 72);
+		$user_agent = substr (trim ($_SERVER['HTTP_USER_AGENT']), 0, 128);
 
 		if (!preg_match ("/^\d{1,3}\.\d{1,3}.\d{1,3}.\d{1,3}$/", $remote_addr) ) {
 			$remote_addr = '0.0.0.0';
@@ -771,8 +785,8 @@ class session {
 											    'user_agent'	=> $user_agent,
 											    'location'		=> $location,
 											    'sessdata'		=> '') );
-		$DB->query ("INSERT INTO {$CFG['db_pfx']}_sessions ({$fields['FIELDS']}) 
-					 VALUES ({$fields['VALUES']})");
+		//$DB->query ("INSERT INTO {$CFG['db_pfx']}_sessions ({$fields['FIELDS']}) 
+			//		 VALUES ({$fields['VALUES']})");
 
 		$update = $DB->format_db_update_values (array ('last_ip'		=> $remote_addr,
 													   'last_visit'		=> $dbsess['last_activity'],
@@ -803,7 +817,7 @@ class session {
 		
 		$basetime = time();
 		$remote_addr = trim ($_SERVER['REMOTE_ADDR']);
-		$user_agent = substr (trim ($_SERVER['HTTP_USER_AGENT']), 0, 72);
+		$user_agent = substr (trim ($_SERVER['HTTP_USER_AGENT']), 0, 128);
 		
 		if (!preg_match ("/^\d{1,3}\.\d{1,3}.\d{1,3}.\d{1,3}$/", $remote_addr) ) {
 			$remote_addr = '0.0.0.0';
@@ -921,11 +935,10 @@ class session {
 		
 		$this->clear_session();
 		
-		$password = md5 ($password);
-		$username = $DB->clean_value ($username);
+		$username = $DB->clean_value($username);
 		
 		$DB->query ("SELECT u.* FROM {$CFG['db_pfx']}_users u 
-					 WHERE u.username = '{$username}' AND u.password = '{$password}'");
+					 WHERE u.username = '{$username}'");
 			
 		if ($DB->get_num_rows() == 0) {
 			$this->create_guest_session();
@@ -936,8 +949,19 @@ class session {
 		$dbrow = $DB->fetch_row();
 		$DB->free_result();
 
-		$this->create_session ($dbrow, $remember);
-		$this->load_user ($dbrow);
+		if ($dbrow['new_password'] == 1) {
+			if (!password_verify($password, $dbrow['password'])) {
+				return false;
+			}
+		}
+		else {
+			if (md5($password) != $dbrow['password']) {
+				return false;
+			}
+		}
+
+		$this->create_session($dbrow, $remember);
+		$this->load_user($dbrow);
 		
 		if ($remember) {
 			//$this->remember_session();
@@ -1057,7 +1081,7 @@ class session {
 			$USER->query_condition("s.cookie = '{$_SESSION['cookie']}' ".
 								   "AND s.ip = '{$_SERVER['REMOTE_ADDR']}' ".
 								   "AND s.sessid = '".session_id()."'".
-								   "AND s.user_agent = '".substr($_SERVER['HTTP_USER_AGENT'], 0, 72)."'");
+								   "AND s.user_agent = '".substr($_SERVER['HTTP_USER_AGENT'], 0, 128)."'");
 			
 			if ($USER->get($_SESSION['uid'])) {
 				$this->load_user($USER);
@@ -1238,7 +1262,7 @@ class session {
 												  'sessid'	=> $sessid,
 												  'cookie'	=> $STD->user['cookie'],
 												  'ip'		=> $_SERVER['REMOTE_ADDR'],
-												  'user_agent'	=> substr($_SERVER['HTTP_USER_AGENT'], 0, 72)));
+												  'user_agent'	=> substr($_SERVER['HTTP_USER_AGENT'], 0, 128)));
 			$DB->query("INSERT INTO {$CFG['db_pfx']}_sessions ({$fields['FIELDS']}) VALUES ({$fields['VALUES']})");
 			
 			$fields = $DB->format_db_update_values(array('last_visit'		=> $STD->user['last_activity'],
@@ -1275,7 +1299,7 @@ class session {
 												  'sessid'	=> $sessid,
 												  'cookie'	=> '',
 												  'ip'		=> $_SERVER['REMOTE_ADDR'],
-												  'user_agent'	=> substr($_SERVER['HTTP_USER_AGENT'], 0, 72)));
+												  'user_agent'	=> substr($_SERVER['HTTP_USER_AGENT'], 0, 128)));
 			$DB->query("INSERT INTO {$CFG['db_pfx']}_sessions ({$fields['FIELDS']}) VALUES ({$fields['VALUES']})");
 		}
 
