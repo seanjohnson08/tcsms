@@ -126,11 +126,12 @@ class component_adm_main {
 	//	$DB->query("SELECT mid,module_name FROM {$CFG['db_pfx']}_modules");
 	//	while ($row = $DB->fetch_row()) {
 		reset($STD->modules->module_set);
-		while (list(,$row) = each ($STD->modules->module_set)) {
-			$menus .= ":: <a href='{{root_url}}act=modq&amp;param=01&amp;c={$row['mid']}'>{$row['module_name']}</a><br />";
+		//while (list(,$row) = each ($STD->modules->module_set)) {
+		foreach ( $STD->modules->module_set as $row ) {
+			$menus .= ":: <a href='{{root_url}}act=modq&amp;param=01&amp;c={$row['mid']}'>{$row['module_name']}</a><br>";
 		}
 		$url = $STD->encode_url($_SERVER['PHP_SELF'], 'act=modq&param=08');
-		$menus .= ":: <a href='$url'>Create New</a><br />";
+		$menus .= ":: <a href='$url'>Create New</a><br>";
 		
 		//$TPL->addTag('modq_menu', $menus);
 	}
