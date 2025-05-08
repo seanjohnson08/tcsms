@@ -8,11 +8,11 @@
 // Main Point of execution for entire CMS
 //------------------------------------------------------------------
 
-error_reporting(E_ALL);
-set_time_limit(0);
+//set_time_limit(0);
 //set_magic_quotes_runtime(0); // deprecated
 
 define ('ROOT_PATH', './');
+global $upload_msg, $global_error;
 
 //------------------------------------------------
 
@@ -25,7 +25,6 @@ $DB->connect();
 
 if (!empty($_GET['debug']))
 	$DB->debug = 1;
-//$DB->debug = 1;
 
 //------------------------------------------------
 
@@ -88,7 +87,7 @@ if ($IN['c'] > 0) {
 	$DB->query("SELECT * FROM {$CFG['db_pfx']}_modules WHERE mid = '{$mod_id}'");
 	$MODULE = $DB->fetch_row();
 	
-	empty($MODULE) ? $STD->template->preprocess_error("Invalud Module Specified") : false;
+	empty($MODULE) ? $STD->template->preprocess_error("Invalid Module Specified") : false;
 	require_once ROOT_PATH.'component/modules/'.$MODULE['module_file'];
 } else 
 	$MODULE = null;*/
@@ -111,7 +110,9 @@ switch ($IN['act']) {
 	case 'resdb'	:	require ROOT_PATH.'component/resourcedb.php'; break;
 	case 'msg'		:	require ROOT_PATH.'component/messenger.php'; break;
 	case 'comment'	:	require ROOT_PATH.'component/comment.php'; break;
-	case 'search'	:	require ROOT_PATH.'component/search.php'; break;
+    case 'search'	:	require ROOT_PATH.'component/search.php'; break;
+    case 'page'	    :   require ROOT_PATH.'component/page.php'; break;
+	case 'notice'   :   require ROOT_PATH.'component/submit_done.php'; break;
 	case 'staff'	:	$IN['param'] = 7;
 						require ROOT_PATH.'component/main.php'; break;
 	default			:	require ROOT_PATH.'component/main.php'; break;
@@ -120,6 +121,16 @@ switch ($IN['act']) {
 $component->init();
 
 $session->save_data(); //('err_save', false);
+
+function get_error () {
+	global $global_error;
+	$output = 0;
+	if (!empty($global_error))
+	{
+		$output = $global_error;
+	}
+	return $output;
+}
 
 $DB->close_db();
 
