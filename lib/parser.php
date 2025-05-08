@@ -16,6 +16,7 @@ class parser {
 	function convert ($data) {
 		global $STD;
 		
+		
 		if ($STD->user['use_bbcode'])
 		{
 			$data = preg_replace("/\[b\](.*?)\[\/b\]/is", "<b>\\1</b>", $data);
@@ -28,7 +29,7 @@ class parser {
 			// URLs
 			$data = preg_replace_callback("/\[url=(\S+?)\](.*?)\[\/url\]/is", array(&$this, 'convert_url'), $data);
 			$data = preg_replace_callback("/\[url\](\S+?)\[\/url\]/i", array(&$this, 'convert_url'), $data);
-			$data = preg_replace_callback("/\[gonzo\](\S+?)\[\/gonzo\]/i", array(&$this, 'convert_image'), $data);
+			$data = preg_replace_callback("/\[img\](\S+?)\[\/img\]/i", array(&$this, 'convert_image'), $data); //old data is "gonzo"
 			$data = preg_replace_callback("/\[email\](\S+?)\[\/email\]/i", array(&$this, 'convert_email'), $data);
 			
 			// Quoting
@@ -36,8 +37,18 @@ class parser {
 		
 		}
 		
+		
 		// Auto-convert URLs
-		$data = preg_replace("/(?<!=[\"'])\b(https?|ftp|file):\/\/[-a-zA-Z0-9+&@#\/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#\/%=~_|]/i", "<a href=\"\\0\">\\0</a>", $data);
+		if (!preg_match('#<a href="([^"]+)">([^<]+)</a>#',$data))
+		{
+			$data = preg_replace("/(?<!=[\"'])\b(https?|ftp|file):\/\/[-a-zA-Z0-9+&@#\/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#\/%=~_|]/i", "<a href=\"\\0\">\\0</a>", $data);
+		}
+		
+		//if (!preg_match("/\[url\](\S+?)\[\/url\]/i"))
+		//&& (!preg_match("/\[url=(\S+?)\](.*?)\[\/url\]/is"))
+		//{
+			//$data = preg_replace("/(?<!=[\"'])\b(https?|ftp|file):\/\/[-a-zA-Z0-9+&@#\/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#\/%=~_|]/i", "<a href=\"\\0\">\\0</a>", $data);
+		//}
 		// $data = preg_replace("/(<a.+? >.*?)<a.+? >(.*?)<\/\s*a>(.*?<\/\s*a>)/i", "\\1\\2\\3", $data);
 		// Commented because it was causing problem - be sure to remove the space between ? and > if you uncomment it.
 		
@@ -49,19 +60,21 @@ class parser {
 		
 		preg_match("/[-a-zA-Z0-9+&@#\/%?=~_|!:,.;]+/", $matches[1], $nmat);
 		$url = str_replace("javascript:", "", $nmat[0]);
-		$url = preg_replace("/(^&#39;)|(^&quote;)|(&#39;$)|(&quot;$)/", "", $url);
+		//$url = preg_replace("/(^&#39;)|(^&quote;)|(&#39;$)|(&quot;$)/", "", $url);
 		
 		if (!preg_match("/^[a-zA-Z]+:\/\//", $url)) {
 			$url = 'http://' . $url;
 		}
-		
+		/*echo '<script language="javascript">';
+		echo 'alert("TEST PURPOSE: $url = '.$url.'")';
+		echo '</script>';*/
 		if (empty($matches[2])) {
-			$url = "<a href=\"{$url}\">{$url}</a>";
+			$url_output = "<a href=\"{$nmat[0]}\">{$url}</a>";
 		} else {
-			$url = "<a href=\"{$url}\">{$matches[2]}</a>";
+			$url_output = "<a href=\"{$nmat[0]}\">$matches[2]</a>";
 		}
 		
-		return $url;
+		return $url_output;
 	}
 	
 	function convert_image ($matches) {
@@ -163,18 +176,24 @@ class parser {
 		$data = preg_replace("/<sup>(.*?)<\/sup>/is", "[sup]\\1[/sup]", $data);
 		$data = preg_replace("/<sub>(.*?)<\/sub>/is", "[sub]\\1[/sub]", $data);
 		
-		// URLs
-		$data = preg_replace("/<a\s+href=[\"\']mailto:(\S+?)[\"\']>\s*\\1\s*<\/a>/is", "[email]\\1[/email]", $data);
-		$data = preg_replace("/<a\s+href=[\"\'](\S+?)[\"\']>\s*\\1\s*<\/a>/is", "[url]\\1[/url]", $data);
-		$data = preg_replace("#<img src=[\"'](\S+?)['\"].+?".">#", "[img]\\1[/img]", $data);
-		$data = preg_replace("/<a\s+href=[\"\'](\S+?)[\"\']>(.*?)<\/a>/is", "[url=\\1]\\2[/url]", $data);
-		
 		// Quotes
 		$data = preg_replace("/<!--QuoteStart--><div class=\"quotetitle\">Quote<\/div><div class=\"quote\">/is", "[quote]", $data);
 		$data = preg_replace_callback("/<!--QuoteStart--><div class=\"quotetitle\">Quote <span style='font-weight:normal'>\((.+?)\)<\/span><\/div><div class=\"quote\">/is", array(&$this, 'unconvert_quote'), $data);
 		$data = preg_replace("/<\/div><!--QuoteEnd-->/i", "[/quote]", $data);
 		
 		$data = preg_replace("/<br\s*\/?>/i", "\n", $data);
+		
+		// URLs
+		$data = preg_replace("/<a\s+href=[\"\']mailto:(\S+?)[\"\']>\s*\\1\s*<\/a>/is", "[email]\\1[/email]", $data);
+		//$data = preg_replace("/<a\s+href=[\"\'](\S+?)[\"\']>\s*\\1\s*<\/a>/is", "[url]\\1[/url]", $data);
+		$data = preg_replace("#<img src=[\"'](\S+?)['\"].+?".">#", "[img]\\1[/img]", $data);
+		/*echo '<script language="javascript">';
+		echo 'alert("TEST PURPOSE: $data = '.$data.'")';
+		echo '</script>';*/
+		$data = htmlentities(preg_replace('#<a href="([^"]+)">([^<]+)</a>#',"[url=$1]$2[/url]", $data));
+		/*$data = preg_replace("/<a\s+href=[\"\'](\S+?)[\"\']>(.*?)<\/a>/is", "[url=\\1]\\2[/url]", $data);*/
+		
+		
 		
 		return $data;
 	}
