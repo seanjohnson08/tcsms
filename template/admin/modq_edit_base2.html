@@ -103,11 +103,11 @@
 	    
   		<tr>
   		  <td class='title_fixed' valign='top'>
-  		    <a href='javascript:show_hide(18);'><img src='{{image_path}}/info.gif' border='0' alt='?' /></a> Admin Comment
+  		    <a href='javascript:show_hide(18);'><img src='{{image_path}}/info.gif' border='0' alt='?' /></a> <label for="admincomment">Admin Comment</label>
   		  </td>
   		  <td class='field_fixed'>
-  		    <textarea name='admincomment' rows='4' cols='30' class='textbox'></textarea>
-  		    <br /><input type='checkbox' name='omit_comment' value='1' class='checkbox' /> Do not inform the user of this modification
+  		    <textarea id='admincomment' name='admincomment' rows='4' cols='30' class='textbox'></textarea>
+  		    <br /><input type='checkbox' name='omit_comment' title='Do not include comment' value='1' class='checkbox' /> Do not inform the user of this modification
   		  </td>
   		</tr>
   		<tr id='menu_18' style='display:none'>
