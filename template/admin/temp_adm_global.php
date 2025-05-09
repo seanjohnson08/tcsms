@@ -5,7 +5,7 @@ class template_adm_global {
 function message ($message) {
 global $STD;
 return <<<HTML
-<br />
+<br>
 {$message}
 HTML;
 }
@@ -20,7 +20,7 @@ return <<<HTML
 </tr>
 <tr>
   <td class="body">
-<br />
+<br>
 {$error}
 </td>
 </tr>
@@ -30,12 +30,12 @@ HTML;
 function html_head () {
 global $STD;
 return <<<HTML
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!doctype html>
 <html lang="en">
   <head>
     <title>Admin Control Panel</title>
-    <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" /> 
-    <style type="text/css">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <style>
         <!--
         body { font-family: Verdana, Arial, Helectiva, Sans-Serif; font-size:10pt }
         a:link, a:visited {text-decoration:none; color: #0000FF }
@@ -116,15 +116,15 @@ function site_header ($site_url) {
 global $STD;
 return <<<HTML
 <body>
-<script type="text/javascript" src="{$STD->tags['template_path']}/global.js"></script>
+<script src="{$STD->tags['template_path']}/global.js"></script>
 <div align="center">
-<table border="0" cellpadding="4" cellspacing="0" width="98%" style="border:2px solid #000000">
+<table cellpadding="4" style="border-spacing:0px;width:98%;border:2px solid #000000">
 <tr>
   <td class="header">Admin Control Panel</td>
 </tr>
 <tr>
 <td class="body">
-<table border="0" cellpadding="1" cellspacing="0" width="100%">
+<table cellpadding="1" cellspacing="0" width="100%">
 <tr>
   <td width="50%" class="options">
     <a href="{$STD->tags['root_url']}act=main">ACP Home</a> | <a href="{$site_url}">Site Home</a>
@@ -135,7 +135,8 @@ return <<<HTML
 </tr>
 <tr>
   <td width="100%" colspan="2" class="options">
-    Current Active Users: {{active_users}}
+    <span>Nothing to see here.</span>
+	<!--<a href="{$STD->tags['root_url']}act=webhook">Push the latest update to the MFGG Discord and recalculate the scores.</a>-->
   </td>
 </tr>
 </table>
@@ -143,18 +144,19 @@ return <<<HTML
 </tr>
 </table>
 </div>
-<br />
+<br>
 <div align="center">
-<table border="0" cellpadding="0" cellspacing="0" width="98%">
+<table cellpadding="0" cellspacing="0" width="98%">
 <tr>
 HTML;
 }
 
 function site_menu ($modq_menu) {
 global $STD;
+// 4/17/2025 note - this valign also matters
 return <<<HTML
 <td width="15%" valign="top">
-<table border="0" cellspacing="0" cellpadding="4" width="100%" style="border:2px solid #000000">
+<table cellspacing="0" cellpadding="4" width="100%" style="border:2px solid #000000">
 <tr>
   <td class="header">
   Submissions
@@ -166,9 +168,9 @@ return <<<HTML
 	</td>
 </tr>
 </table>
-<br />
+<br>
 <div {{ucp_style}}>
-<table border="0" cellspacing="0" cellpadding="4" width="100%" style="border:2px solid #000000">
+<table cellspacing="0" cellpadding="4" width="100%" style="border:2px solid #000000">
 <tr>
   <td class="header">
   Users
@@ -176,17 +178,17 @@ return <<<HTML
 </tr>
 <tr>
 	  <td class="body" style="font-size:10pt">
-  :: <a href="{$STD->tags['root_url']}act=ucp&amp;param=01">Manage Users</a><br />
-  :: <a href="{$STD->tags['root_url']}act=ucp&amp;param=14">Find Users</a><br />
-  :: <a href="{$STD->tags['root_url']}act=ucp&amp;param=07">Manage Groups</a><br />
+  :: <a href="{$STD->tags['root_url']}act=ucp&amp;param=01">Manage Users</a><br>
+  :: <a href="{$STD->tags['root_url']}act=ucp&amp;param=14">Find Users</a><br>
+  :: <a href="{$STD->tags['root_url']}act=ucp&amp;param=07">Manage Groups</a><br>
   :: <a href="{$STD->tags['root_url']}act=ucp&amp;param=06">Ban Settings</a>
   </td>
 </tr>
 </table>
 </div>
-<br />
+<br>
 <div>
-<table border="0" cellspacing="0" cellpadding="4" width="100%" style="border:2px solid #000000">
+<table cellspacing="0" cellpadding="4" width="100%" style="border:2px solid #000000">
 <tr>
   <td class="header">
   News
@@ -194,15 +196,15 @@ return <<<HTML
 </tr>
 <tr>
   <td class="body" style="font-size:10pt">
-  :: <a href="{$STD->tags['root_url']}act=news&amp;param=01">New Entry</a><br />
+  :: <a href="{$STD->tags['root_url']}act=news&amp;param=01">New Entry</a><br>
   :: <a href="{$STD->tags['root_url']}act=news&amp;param=03">Modify Entry</a>
   </td>
 </tr>
 </table>
 </div>
-<br />
+<br>
 <div>
-<table border="0" cellspacing="0" cellpadding="4" width="100%" style="border:2px solid #000000">
+<table cellspacing="0" cellpadding="4" width="100%" style="border:2px solid #000000">
 <tr>
   <td class="header">
   Manage
@@ -210,10 +212,32 @@ return <<<HTML
 </tr>
 <tr>
   <td class="body" style="font-size:10pt">
-  :: <a href="{$STD->tags['root_url']}act=manage&amp;param=01">Message Ctr</a><br />
-  :: <a href="{$STD->tags['root_url']}act=manage&amp;param=05">Site On/Off</a><br />
-  :: <a href="{$STD->tags['root_url']}act=conf&amp;param=01">Filter Groups</a><br />
-  :: <a href="{$STD->tags['root_url']}act=panel&amp;param=01">Panels</a>
+  :: <a href="{$STD->tags['root_url']}act=manage&amp;param=01">Message Ctr</a><br>
+  :: <a href="{$STD->tags['root_url']}act=manage&amp;param=05">Site On/Off</a><br>
+  :: <a href="{$STD->tags['root_url']}act=conf&amp;param=01">Filter Groups</a><br>
+  :: <a href="{$STD->tags['root_url']}act=panel&amp;param=01">Panels</a><br>
+  :: <a href="{$STD->tags['root_url']}act=webhook">Manually Push Update to Discord</a><br>
+  :: <a href="{$STD->tags['root_url']}act=manage&amp;param=08">Manually Recalculate Scores</a>
+  </td>
+</tr>
+</table>
+</div>
+<br>
+<div>
+<table cellspacing="0" cellpadding="4" width="100%" style="border:2px solid #000000">
+<tr>
+  <td class="header">
+  Staff Graph
+  </td>
+</tr>
+<tr>
+  <td class="body" style="font-size:10pt">
+  :: <a href="{$STD->tags['root_url']}act=staffgraph&amp;time=week">Weekly</a><br>
+  :: <a href="{$STD->tags['root_url']}act=staffgraph&amp;time=month">Monthly</a><br>
+  :: <a href="{$STD->tags['root_url']}act=staffgraph&amp;time=year">Yearly</a><br>
+  :: <a href="{$STD->tags['root_url']}act=staffgraph">All Time</a><br>
+  :: <a href="{$STD->tags['root_url']}act=staffgraph2&amp;time=year">Global Yearly</a><br>
+  :: <a href="{$STD->tags['root_url']}act=staffgraph2">Global All Time</a>
   </td>
 </tr>
 </table>
@@ -227,9 +251,10 @@ HTML;
 
 function content_header () {
 global $STD;
+// 4/17/2025 Note - this is a rare "valign" that matters
 return <<<HTML
 <td width="83%" valign="top">
-<table border="0" cellspacing="0" cellpadding="4" width="100%" style="border:2px solid #000000">
+<table cellspacing="0" cellpadding="4" width="100%" style="border:2px solid #000000">
 HTML;
 }
 
