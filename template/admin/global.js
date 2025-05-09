@@ -4,7 +4,7 @@ var activeId = 0;
 function get_by_id(id) {
 
 	itm = null;
-	
+
 	if (document.getElementById) {
 		itm = document.getElementById(id);
 	} else if (document.all) {
@@ -12,14 +12,14 @@ function get_by_id(id) {
 	} else if (document.layers) {
 		itm = document.layers[id];
 	}
-	
+
 	return itm;
 }
 
 function show_hide(id) {
 	if (!id) 
 		return;
-	
+
 	if (itm = get_by_id('menu_'+id)) {
 		if (itm.style.display == "none") {
 			itm.style.display = "";
