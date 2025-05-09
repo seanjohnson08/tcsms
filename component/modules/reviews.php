@@ -80,7 +80,7 @@ class mod_reviews extends module {
 		{
 			$RES->data['url'] = $STD->encode_url('index.php', "act=resdb&param=02&c={$RES->data['type']}&id={$RES->data['rid']}");
 			$RES->data['username'] = $STD->format_username($RES->data, 'ru_');
-			$RES->data['thumbnail'] = "<img src='thumbnail/2/{$RES->data['thumbnail']}' />";
+			$RES->data['thumbnail'] = "<img src='thumbnail/2/{$RES->data['thumbnail']}'>";
 			$RES->data['description'] = $STD->nat_substr($RES->data['description'], 100) . ' ...';
 			
 			(!empty($RES->data['l_short_name']))
@@ -111,11 +111,11 @@ class mod_reviews extends module {
 			$this->error_save("No game is associated with this review.");
 		
 		if (empty($IN['commentary']) || empty($IN['pros']) || empty($IN['cons']) || empty($IN['gameplay']) ||
-			empty($IN['graphics']) || empty($IN['sound']) || empty($IN['replay']) || empty($IN['description']))
+			empty($IN['graphics']) || empty($IN['sound']) || empty($IN['description']))
 			$this->error_save("You must fill out all fields.");
 		
 		if (empty($IN['graphics_score']) || empty($IN['gameplay_score']) || empty($IN['sound_score']) ||
-			empty($IN['replay_score']) || empty($IN['score']))
+			empty($IN['score']))
 			$this->error_save("You must assign a score to each field, and give an overall score.");
 		
 		// Make sure we can write a review for this type
@@ -288,17 +288,17 @@ class mod_reviews extends module {
 		$data = $this->common_edit_prep_data($row);
 		
 		empty($row['ru_website'])
-			? $data['website'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None' border='0' />"
-			: $data['website'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_website']}' border='0' />";
+			? $data['website'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None'>"
+			: $data['website'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_website']}'>";
 			
 		empty($row['ru_weburl'])
-			? $data['weburl'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None' border='0' />"
-			: $data['weburl'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_weburl']}' border='0' />";
+			? $data['weburl'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None'>"
+			: $data['weburl'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_weburl']}'>";
 		
 		$uurl = $STD->encode_url($_SERVER['PHP_SELF'], "act=ucp&param=02&u={$row['uid']}");
 		empty($row['ru_username'])
-			? $data['usericon'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='No User Associated' border='0' />"
-			: $data['usericon'] = "<a href='$uurl'><img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='Click to view user' border='0' /></a>";
+			? $data['usericon'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='No User Associated'>"
+			: $data['usericon'] = "<a href='$uurl'><img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='Click to view user'></a>";
 		
 		return $data;
 	}
@@ -333,7 +333,7 @@ class mod_reviews extends module {
 		
 		$data['file_url'] = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=02&c={$IN['c']}&id={$data['rid']}");
 		
-		$page_icon = "<img src=\"{$STD->tags['image_path']}/viewpagevw.gif\" border=\"0\" alt=\"[Page]\" style=\"display:inline; vertical-align:middle\" title=\"View Submission's Page\" />";
+		$page_icon = "<img src=\"{$STD->tags['global_image_path']}/viewpagevw.gif\" border=\"0\" alt=\"[Page]\" style=\"display:inline; vertical-align:middle\" title=\"View Submission's Page\">";
 		
 		$data['page_icon'] = "<a href=\"{$data['file_url']}\">$page_icon</a>";
 
@@ -359,11 +359,20 @@ class mod_reviews extends module {
 		
 		$score_img = array('', '1_10.gif', '2_10.gif', '3_10.gif', '4_10.gif', '5_10.gif',
 							   '6_10.gif', '7_10.gif', '8_10.gif', '9_10.gif', '10_10.gif');
-		//Adding in support for my -1/10 review :P
+		//Adding in support for my -1/10 review :P ~Techokami
 		$score_img[-1] = '-1_10.gif';
+		//Support for other scores
+		$score_img[0] = '0_10.gif';
+		$score_img[-2] = '-2_10.gif';
+		$score_img[11] = '11_10.gif';
+		$score_img[13] = '13_10.gif';
+		$score_img[42] = '42_10.gif';
+		$score_img[333] = '333_10.gif';
+		$score_img[1337] = '1337_10.gif';
+		$score_img[100] = '100_10.gif';
 		
 		$img_path = "{$STD->tags['root_path']}/template/modules/{$data['type']}/{$score_img[$data['score']]}";
-		$data['score'] = "<img src='$img_path' border='0' alt='{$data['score']} / 10' />";
+		$data['score'] = "<img src='$img_path' alt='{$data['score']} / 10'>";
 		
 		return $data;
 	}
@@ -392,11 +401,11 @@ class mod_reviews extends module {
 		$RES->data['gameplay'] = $IN['gameplay'];
 		$RES->data['graphics'] = $IN['graphics'];
 		$RES->data['sound'] = $IN['sound'];
-		$RES->data['replay'] = $IN['replay'];
+		$RES->data['replay'] = "";//$IN['replay'];
 		$RES->data['gameplay_score'] = $IN['gameplay_score'];
 		$RES->data['graphics_score'] = $IN['graphics_score'];
 		$RES->data['sound_score'] = $IN['sound_score'];
-		$RES->data['replay_score'] = $IN['replay_score'];
+		$RES->data['replay_score'] = 0;//$IN['replay_score'];
 
 		$RES->data['oldscore'] = $RES->data['score'];
 		if ($RES->data['score'] == 0)
@@ -511,10 +520,14 @@ class mod_reviews extends module {
 		 	$num = 1;
 			$cum = $RES->data['score'];
 		}
+		if ($code == 'd' || $code == 'dq' || $code == 'du') {
+		 	$num = -1;
+			$cum = -(intval($RES->data['score']));
+		}
 		
 		$DB->query ("SELECT score FROM {$CFG['db_pfx']}_res_reviews v
 					   LEFT JOIN {$CFG['db_pfx']}_resources r ON (r.eid = v.eid)
-					 WHERE r.queue_code = 0 AND r.rid <> '{$RES->data['rid']}' AND v.gid = '{$RES->data['gid']}'");
+					 WHERE r.queue_code = 0 AND r.rid <> '{$RES->data['rid']}' AND v.gid = '{$RES->data['gid']}' AND r.accept_date > 0");
 		
 		while ($row = $DB->fetch_row() ) {
 			$num++;
