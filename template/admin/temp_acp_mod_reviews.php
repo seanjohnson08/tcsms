@@ -15,19 +15,19 @@ return <<<HTML
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Title
+    <label for="title">Title</label>
   </td>
   <td class='field_fixed'>
-    <input type='text' name='title' value="{$res['title']}" size='40' class='textbox' />
+    <input type='text' id='title' name='title' value="{$res['title']}" size='40' class='textbox' />
   </td>
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Creator <a href="javascript:show_hide('f1_h2a');show_hide('f1_h2b');show_hide('f1_h2c');">
+    <label for="author">Creator</label> <a href="javascript:show_hide('f1_h2a');show_hide('f1_h2b');show_hide('f1_h2c');">
 				 <img src='./template/admin/images/info.gif' border='0' alt='[Info]' /></a>
   </td>
   <td class='field_fixed'>
-    <input type='text' name='author' value="{$res['username']}" size='40' class='textbox' /> {$res['usericon']}
+    <input type='text' id='author' name='author' value="{$res['username']}" size='40' class='textbox' /> {$res['usericon']}
   </td>
 </tr>
 <tr id='f1_h2a' style='display:none'>
@@ -44,26 +44,26 @@ return <<<HTML
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Username Override
+    <label for="author_override">Username Override</label>
   </td>
   <td class='field_fixed'>
-    <input type='text' name='author_override' value="{$res['author_override']}" size='40' class='textbox' />
+    <input type='text' id='author_override' name='author_override' value="{$res['author_override']}" size='40' class='textbox' />
   </td>
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Website Override
+    <label for="website_override">Website Override</label>
   </td>
   <td class='field_fixed'>
-    <input type='text' name='website_override' value="{$res['website_override']}" size='40' class='textbox' /> {$res['website']}
+    <input type='text' id="website_override" name='website_override' value="{$res['website_override']}" size='40' class='textbox' /> {$res['website']}
   </td>
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Website URL Override
+    <label for='weburl_override'>Website URL Override</label>
   </td>
   <td class='field_fixed'>
-    <input type='text' name='weburl_override' value="{$res['weburl_override']}" size='40' class='textbox' /> {$res['weburl']}
+    <input type='text' id='weburl_override' name='weburl_override' value="{$res['weburl_override']}" size='40' class='textbox' /> {$res['weburl']}
   </td>
 </tr>
 <tr>
@@ -85,10 +85,10 @@ return <<<HTML
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Commentary
+    <label for="commentary">Commentary</label>
   </td>
   <td class='field_fixed'>
-    <textarea name="commentary" cols="42" rows="12">{$res['commentary']}</textarea>
+    <textarea id="commentary" name="commentary" cols="42" rows="12">{$res['commentary']}</textarea>
   </td>
 </tr>
 <tr>
@@ -97,18 +97,18 @@ return <<<HTML
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Pros
+    <label for="pros">Pros</label>
   </td>
   <td class='field_fixed'>
-    <textarea name="pros" cols="42" rows="5">{$res['pros']}</textarea>
+    <textarea id="pros" name="pros" cols="42" rows="5">{$res['pros']}</textarea>
   </td>
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Cons
+    <label for="cons">Cons</label>
   </td>
   <td class='field_fixed'>
-    <textarea name="cons" rows="5" cols="42">{$res['cons']}</textarea>
+    <textarea id="cons" name="cons" rows="5" cols="42">{$res['cons']}</textarea>
   </td>
 </tr>
 <tr>
@@ -117,37 +117,37 @@ return <<<HTML
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Gameplay
+    <label for="gameplay">Gameplay</label>
   </td>
   <td class='field_fixed'>
-    <textarea name="gameplay" rows="5" cols="42">{$res['gameplay']}</textarea><br />
+    <textarea id="gameplay" name="gameplay" rows="5" cols="42">{$res['gameplay']}</textarea><br>
   	Score: {$res['gameplay_score']}
   </td>
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Graphics
+   <label for="graphics">Graphics</label>
   </td>
   <td class='field_fixed'>
-    <textarea name="graphics" rows="5" cols="42">{$res['graphics']}</textarea><br />
+    <textarea id="graphics" name="graphics" rows="5" cols="42">{$res['graphics']}</textarea><br>
     Score: {$res['graphics_score']}
   </td>
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Sound
+    <label for="sound">Sound</label>
   </td>
   <td class='field_fixed'>
-    <textarea name="sound" rows="5" cols="42">{$res['sound']}</textarea><br />
+    <textarea id="sound" name="sound" rows="5" cols="42">{$res['sound']}</textarea><br>
     Score: {$res['sound_score']}
   </td>
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Replay
+    <label for="replay">Replay</label>
   </td>
   <td class='field_fixed'>
-    <textarea name="replay" rows="5" cols="42">{$res['replay']}</textarea><br />
+    <textarea id="replay" name="replay" rows="5" cols="42">{$res['replay']}</textarea><br>
     Score: {$res['replay_score']}
   </td>
 </tr>
@@ -157,10 +157,10 @@ return <<<HTML
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Final Words
+    <label for="description">Final Words</label>
   </td>
   <td class='field_fixed'>
-    <textarea rows='6' cols='38' name='description' class='textbox'>{$res['description']}</textarea><br />
+    <textarea rows='6' cols='38' id='description' name='description' class='textbox'>{$res['description']}</textarea><br>
     Score: {$res['score']}
   </td>
 </tr>
