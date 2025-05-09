@@ -78,8 +78,8 @@ class mod_sounds extends module {
 			
 			//$output .= $shtml->news_update_block_row( $RES->data );
 			$html .= "<tr><td class='sformleftw'><a href='$item'><b>{$RES->data['title']}</b></a></td>
-					  <td class='sformleftw' width='15%'>[$type]</td>
-					  <td class='sformleftw' width='30%'>By {$username}</td></tr>";
+					  <td class='sformleftw' style='width:15%;'>[$type]</td>
+					  <td class='sformleftw' style='width:30%;'>By {$username}</td></tr>";
 			$num_items++;
 		}
 		
@@ -99,8 +99,8 @@ class mod_sounds extends module {
 		global $IN, $STD;
 		
 		// Check for completed required fields
-		if (empty($IN['cat1']))
-			$this->error_save("You must chose a value for the sound format", 'submit');
+		if (empty($IN['cat1']) || empty($IN['cat4']))
+			$this->error_save("You must chose a value and game franchise for the sound format", 'submit');
 		
 		if (empty($IN['title']))
 			$this->error_save("You must provide a title.");
@@ -188,6 +188,7 @@ class mod_sounds extends module {
 		
 		$module = $STD->modules->get_module($data['type']);
 		
+		if (!empty($module['full_name'])) // 4/9/2025 test fix
 		$data['type_name'] = $module['full_name'];
 		
 		return $data;
@@ -224,15 +225,19 @@ class mod_sounds extends module {
 		if (!empty ($session->data['err_save']) ) {
 			$err = $session->data['err_save'];
 			$selected = array_merge($selected, $err['cat1']);
+			if (isset($err['cat4']))
+				$selected = array_merge($selected, $err['cat4']);
 		}
 		
 		$data['cat1'] = $this->make_catset('SOUND_TYPE', $access, $selected);
 		$data['cat2'] = $this->make_catsetmulti('SOUND_CAT', $access, $selected);
 		$data['cat3'] = $this->make_catsetmulti('GAME', $access, $selected);
+		$data['cat4'] = $this->make_catset('FRANCHISE', $access, $selected);
 		
 		$data['cat1'] = $STD->make_select_box('cat1', $data['cat1']['value'], $data['cat1']['name'], $data['cat1']['sel'], 'selectbox');
 		$data['cat2'] = $STD->make_checkboxlist('cat2[]', $data['cat2']['value'], $data['cat2']['name'], $data['cat2']['sel']);
 		$data['cat3'] = $STD->make_checkboxlist('cat3[]', $data['cat3']['value'], $data['cat3']['name'], $data['cat3']['sel']);
+		$data['cat4'] = $STD->make_select_box('cat4', $data['cat4']['value'], $data['cat4']['name'], $data['cat4']['sel'], 'selectbox');
 		
 		return $data;
 	}
@@ -281,17 +286,17 @@ class mod_sounds extends module {
 		$data = $this->common_edit_prep_data($row);
 		
 		empty($row['ru_website'])
-			? $data['website'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None' border='0' />"
-			: $data['website'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_website']}' border='0' />";
+			? $data['website'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None'>"
+			: $data['website'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_website']}'>";
 			
 		empty($row['ru_weburl'])
-			? $data['weburl'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None' border='0' />"
-			: $data['weburl'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_weburl']}' border='0' />";
+			? $data['weburl'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None'>"
+			: $data['weburl'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_weburl']}'>";
 		
 		$uurl = $STD->encode_url($_SERVER['PHP_SELF'], "act=ucp&param=02&u={$row['uid']}");
 		empty($row['ru_username'])
-			? $data['usericon'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='No User Associated' border='0' />"
-			: $data['usericon'] = "<a href='$uurl'><img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='Click to view user' border='0' /></a>";
+			? $data['usericon'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='No User Associated'>"
+			: $data['usericon'] = "<a href='$uurl'><img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='Click to view user'></a>";
 
 	//	($STD->user['acp_users'] && !empty($row['ru_username']))
 	//		? $data['usericon']['v'] = 'Click to View User'
@@ -317,7 +322,7 @@ class mod_sounds extends module {
 		$data['title'] = $STD->safe_display($data['title']);
 		
 		$src = "{$STD->tags['root_path']}/template/modules/{$data['type']}/{$data['type1']}.gif";
-		$data['type1'] = "<img src=\"$src\" alt=\"{$data['type1']}\" /> ";
+		$data['type1'] = "<img src=\"$src\" alt=\"{$data['type1']}\"> ";
 		
 		return $data;
 	}
@@ -335,8 +340,8 @@ class mod_sounds extends module {
 		$data['file_url'] = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=02&c={$IN['c']}&id={$data['rid']}");
 		$data['dl_url'] = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=03&c={$IN['c']}&id={$data['rid']}");
 		
-		$page_icon = "<img src=\"{$STD->tags['image_path']}/viewpagevw.gif\" border=\"0\" alt=\"[Page]\" style=\"display:inline; vertical-align:middle\" title=\"View Submission's Page\" />";
-		$dl_icon = "<img src=\"{$STD->tags['image_path']}/viewpagedn.gif\" border=\"0\" alt=\"[DL]\" style=\"display:inline; vertical-align:middle\" title=\"Download Submission\" />";
+		$page_icon = "<img src=\"{$STD->tags['global_image_path']}/viewpagevw.gif\" alt=\"[Page]\" style=\"display:inline; vertical-align:middle\" title=\"View Submission's Page\">";
+		$dl_icon = "<img src=\"{$STD->tags['global_image_path']}/viewpagedn.gif\" alt=\"[DL]\" style=\"display:inline; vertical-align:middle\" title=\"Download Submission\">";
 		
 		$data['page_icon'] = "<a href=\"{$data['file_url']}\">$page_icon</a>";
 		$data['dl_icon'] = "<a href=\"{$data['dl_url']}\">$dl_icon</a>";
@@ -348,7 +353,7 @@ class mod_sounds extends module {
 			$row['comment_date'] > $rr)
 		{
 			$c_url = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=02&c={$IN['c']}&id={$data['rid']}&st=new");
-			$data['new_comments'] = "<a href=\"$c_url\"><img src=\"{$STD->tags['image_path']}/newcomment.gif\" border=\"0\" alt=\"[NEW]\" style=\"display:inline; vertical-align:middle\" title=\"Goto last unread comment\" /></a>";
+			$data['new_comments'] = "<a href=\"$c_url\"><img src=\"{$STD->tags['global_image_path']}/newcomment.gif\" alt=\"[NEW]\" style=\"display:inline; vertical-align:middle\" title=\"Goto last unread comment\"></a>";
 		} else {
 			$data['new_comments'] = '';
 		}
@@ -389,12 +394,12 @@ class mod_sounds extends module {
 		for ($x=0; $x<min(2,$rows_returned); $x++) {
 			$row = $DB->fetch_row($dblist);
 			$vdate = $STD->make_date_short($row['date']);
-			$data['version_history'] .= "<tr><td width='25%' valign='top'><b>$vdate&nbsp;</b></td>
-										   <td width='75%' valign='top'>{$row['change']}</td></tr>";
+			$data['version_history'] .= "<tr><td style='width:25%;'><b>$vdate&nbsp;</b></td>
+										   <td style='width:75%;'>{$row['change']}</td></tr>";
 		}
 		
 		if ($rows_returned > 2)	
-			$data['version_history'] .= "<tr><td colspan='2' align='center'><br /><a href='javascript:version_history()'>
+			$data['version_history'] .= "<tr><td colspan='2' align='center'><br><a href='javascript:version_history()'>
 										 View Complete History</a></td></tr>";
 		
 		return $data;
@@ -428,6 +433,7 @@ class mod_sounds extends module {
 			$RES->data['type1'] = $row['short_name'];
 		
 		$auxdata['sound_type'] = $IN['cat1'];
+		$auxdata['franchise'] = $IN['cat4'];
 		empty($IN['cat2']) ? $auxdata['sound_cat'] = array() : $auxdata['sound_cat'] = $IN['cat2'];
 		empty($IN['cat3']) ? $auxdata['game'] = array() : $auxdata['game'] = $IN['cat3'];
 		
@@ -448,7 +454,7 @@ class mod_sounds extends module {
 
 		$RES->insert();
 		
-		$values = array($auxdata['sound_type'], $auxdata['sound_cat'], $auxdata['game']);
+		$values = array($auxdata['sound_type'], $auxdata['sound_cat'], $auxdata['game'], $auxdata['franchise']);
 		$this->add_filters($RES->data['rid'], $values);
 		
 		$RES->data['catwords'] = $this->make_catwords( $RES->data['rid'] );
@@ -490,7 +496,7 @@ class mod_sounds extends module {
 		// Add Filters
 		$this->clear_filters($ghost->data['rid']);
 		
-		$values = array($auxdata['sound_type'], $auxdata['sound_cat'], $auxdata['game']);
+		$values = array($auxdata['sound_type'], $auxdata['sound_cat'], $auxdata['game'], $auxdata['franchise']);
 		$this->add_filters($ghost->data['rid'], $values);
 		
 		$ghost->data['catwords'] = $this->make_catwords( $ghost->data['rid'] );
@@ -529,7 +535,7 @@ class mod_sounds extends module {
 		// Add Filters
 		$this->clear_filters($IN['rid']);
 		
-		$values = array($auxdata['sound_type'], $auxdata['sound_cat'], $auxdata['game']);
+		$values = array($auxdata['sound_type'], $auxdata['sound_cat'], $auxdata['game'], $auxdata['franchise']);
 		$this->add_filters($IN['rid'], $values);
 		
 		// Keywords
