@@ -73,8 +73,7 @@ class mod_gfx extends module {
 			
 		$num_items = 0;
 		$html = "<div class='sformstrip'>Sprites</div><table class='sformtable' cellspacing='1'>";
-		
-		
+				
 		while ($RES->nextItem())
 		{
 			$RES->data['url'] = $STD->encode_url('index.php', "act=resdb&param=02&c={$RES->data['type']}&id={$RES->data['rid']}");
@@ -107,7 +106,7 @@ class mod_gfx extends module {
 		
 		// Check for completed required fields
 		if (empty($IN['cat1']) || empty($IN['cat2']))
-			$this->error_save("You must chose a value for the format and contents categories.", 'submit');
+			$this->error_save("You must chose a value for the format, contents, and franchise categories.", 'submit');
 		
 		if (empty($IN['title']))
 			$this->error_save("You must provide a title.");
@@ -205,6 +204,7 @@ class mod_gfx extends module {
 
 		$module = $STD->modules->get_module($data['type']);
 		
+		if (!empty($module['full_name'])) // 4/9/2025 test fix
 		$data['type_name'] = $module['full_name'];
 		
 		return $data;
@@ -250,6 +250,8 @@ class mod_gfx extends module {
 				$selected = array_merge($selected, $err['cat4']);
 			if (isset($err['cat5']))
 				$selected = array_merge($selected, $err['cat5']);
+			if (isset($err['cat6']))
+				$selected = array_merge($selected, $err['cat6']);
 		}
 		
 		$data['cat1'] = $this->make_catset('TYPE', $access, $selected);
@@ -257,12 +259,14 @@ class mod_gfx extends module {
 		$data['cat3'] = $this->make_catsetmulti('GEN_CAT', $access, $selected);
 		$data['cat4'] = $this->make_catsetmulti('GAME', $access, $selected);
 		$data['cat5'] = $this->make_catsetmulti('CHAR', $access, $selected);
+		$data['cat6'] = $this->make_catset('FRANCHISE', $access, $selected);
 		
 		$data['cat1'] = $STD->make_select_box('cat1', $data['cat1']['value'], $data['cat1']['name'], $data['cat1']['sel'], 'selectbox');
 		$data['cat2'] = $STD->make_select_box('cat2', $data['cat2']['value'], $data['cat2']['name'], $data['cat2']['sel'], 'selectbox');
 		$data['cat3'] = $STD->make_checkboxlist('cat3[]', $data['cat3']['value'], $data['cat3']['name'], $data['cat3']['sel']);
 		$data['cat4'] = $STD->make_checkboxlist('cat4[]', $data['cat4']['value'], $data['cat4']['name'], $data['cat4']['sel']);
 		$data['cat5'] = $STD->make_checkboxlist('cat5[]', $data['cat5']['value'], $data['cat5']['name'], $data['cat5']['sel']);
+		$data['cat6'] = $STD->make_select_box('cat6', $data['cat6']['value'], $data['cat6']['name'], $data['cat6']['sel'], 'selectbox');
 		
 		return $data;
 	}
@@ -299,7 +303,7 @@ class mod_gfx extends module {
 		if (preg_match($STD->get_regex('nat_delim'), $row['author_override'])) {
 			$add_authors = preg_split($STD->get_regex('nat_delim'), $row['author_override']);
 			array_shift($add_authors);
-			$data['author_override'] = @join(', ', $add_authors);
+			$data['author_override'] = join(', ', $add_authors);
 		}
 
 		return $data;
@@ -311,17 +315,17 @@ class mod_gfx extends module {
 		$data = $this->common_edit_prep_data($row);
 		
 		empty($row['ru_website'])
-			? $data['website'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None' border='0' />"
-			: $data['website'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_website']}' border='0' />";
+			? $data['website'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None'>"
+			: $data['website'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_website']}'>";
 			
 		empty($row['ru_weburl'])
-			? $data['weburl'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None' border='0' />"
-			: $data['weburl'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_weburl']}' border='0' />";
+			? $data['weburl'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None'>"
+			: $data['weburl'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_weburl']}'>";
 		
 		$uurl = $STD->encode_url($_SERVER['PHP_SELF'], "act=ucp&param=02&u={$row['uid']}");
 		empty($row['ru_username'])
-			? $data['usericon'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='No User Associated' border='0' />"
-			: $data['usericon'] = "<a href='$uurl'><img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='Click to view user' border='0' /></a>";
+			? $data['usericon'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='No User Associated'>"
+			: $data['usericon'] = "<a href='$uurl'><img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='Click to view user'></a>";
 
 	//	($STD->user['acp_users'] && !empty($row['ru_username']))
 	//		? $data['usericon']['v'] = 'Click to View User'
@@ -350,7 +354,7 @@ class mod_gfx extends module {
 	}
 	
 	function resdb_prep_data (&$row) {
-		global $IN, $STD, $session;
+		global $IN, $STD, $session, $DB, $CFG;
 		
 		$data = $this->common_view_prep_data($row);
 		
@@ -362,23 +366,24 @@ class mod_gfx extends module {
 		$data['file_url'] = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=02&c={$IN['c']}&id={$data['rid']}");
 		$data['dl_url'] = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=03&c={$IN['c']}&id={$data['rid']}");
 		
-		$page_icon = "<img src=\"{$STD->tags['image_path']}/viewpagevw.gif\" border=\"0\" alt=\"[Page]\" style=\"display:inline; vertical-align:middle\" title=\"View Submission's Page\" />";
-		$dl_icon = "<img src=\"{$STD->tags['image_path']}/viewpagedn.gif\" border=\"0\" alt=\"[DL]\" style=\"display:inline; vertical-align:middle\" title=\"Download Submission\" />";
+		$page_icon = "<img src=\"{$STD->tags['global_image_path']}/viewpagevw.gif\" alt=\"[Page]\" style=\"display:inline; vertical-align:middle\" title=\"View Submission's Page\">";
+		$dl_icon = "<img src=\"{$STD->tags['global_image_path']}/viewpagedn.gif\" alt=\"[DL]\" style=\"display:inline; vertical-align:middle\" title=\"Download Submission\">";
 		
 		$data['page_icon'] = "<a href=\"{$data['file_url']}\">$page_icon</a>";
 		$data['dl_icon'] = "<a href=\"{$data['dl_url']}\">$dl_icon</a>";
 		
-		if (empty ($session->data['rr']) ) $session->data['rr'] = array();
+		if (empty($session->data['rr']) ) $session->data['rr'] = array();
 		$rr = empty ($session->data['rr'][$data['rid']]) ? 0 : $session->data['rr'][$data['rid']];
 		
 		if ($row['comment_date'] > $STD->user['last_visit'] && 
 			$row['comment_date'] > $rr)
 		{
 			$c_url = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=02&c={$IN['c']}&id={$data['rid']}&st=new");
-			$data['new_comments'] = "<a href=\"$c_url\"><img src=\"{$STD->tags['image_path']}/newcomment.gif\" border=\"0\" alt=\"[NEW]\" style=\"display:inline; vertical-align:middle\" title=\"Goto last unread comment\" /></a>";
+			$data['new_comments'] = "<a href=\"$c_url\"><img src=\"{$STD->tags['global_image_path']}/newcomment.gif\" alt=\"[NEW]\" style=\"display:inline; vertical-align:middle\" title=\"Goto last unread comment\"></a>";
 		} else {
 			$data['new_comments'] = '';
 		}
+		
 	
 		(!$row['updated'])
 			? $data['updated'] = ''
@@ -389,7 +394,70 @@ class mod_gfx extends module {
 		
 		if (!$STD->user['show_thumbs'])
 			$data['thumbnail'] = '';
+		
+		//ADD Resource type
+		$DB2_Q = "SELECT l.fid,l.name,l.short_name,g.keyword,m.fid as fhit FROM {$CFG['db_pfx']}_filter_list l ".
+				   "LEFT JOIN {$CFG['db_pfx']}_filter_use u ON (l.gid = u.gid) ".
+				   "LEFT JOIN {$CFG['db_pfx']}_filter_group g ON (l.gid = g.gid) ".
+				   "LEFT OUTER JOIN {$CFG['db_pfx']}_filter_multi m ON (l.fid = m.fid AND m.rid = '{$data['rid']}') ".
+				   "WHERE u.mid = '{$IN['c']}' AND m.rid = '{$data['rid']}'";
+		
+		$data['type_title'] = "---";
+		$type_a = "";
+		$type_b = "";
+		
+		//establish Alt MySQL connection
+		$mysql_tc = mysqli_connect($CFG['db_host'],$CFG['db_user'],$CFG['db_pass'],$CFG['db_db']);
 			
+			//throw an error if connection failed
+			if ($mysql_tc->connect_errno)
+			{
+				$STD->error("CRITICAL ERROR: Failed to connect to MySQL: (" . $mysql_tc->connect_errno . ") " . $current_connection->connect_error);
+			}
+			
+			//perform the query
+			$t_output = array();
+			$tcount = 0;
+			if (mysqli_multi_query($mysql_tc,$DB2_Q))
+			{
+				do
+				{
+					// Store first result set
+					if ($result4 = mysqli_store_result($mysql_tc))
+					{
+						// Fetch one and one row
+						while ($ttrow = mysqli_fetch_row($result4))
+						{
+							array_push($t_output,$ttrow);
+							$tcount += 1;
+							if ($ttrow[3] == 'TYPE') {
+								$type_a = $ttrow[1];
+							}
+							if ($ttrow[3] == 'RIP_TYPE') {
+								$type_b = $ttrow[1];
+							}
+						}
+						// Free result set
+						mysqli_free_result($result4);
+					}
+				}
+				while (mysqli_more_results($mysql_tc));
+			}
+			
+			//shut down MySQL
+			mysqli_close($mysql_tc);
+		
+		{
+			//if ($t_output['keyword'] == 'TYPE') {
+				//$type_a = $t_output['name']['TYPE'];
+			//}
+			
+			//if ($t_output['keyword'] == 'RIP_TYPE') {
+				//$type_b = $t_output['RIP_TYPE']['name'];
+			//}
+		}
+		$data['type_title'] = $type_a." - ".$type_b;
+
 		return $data;
 	}
 	
@@ -417,6 +485,8 @@ class mod_gfx extends module {
 		
 		$data['type_type'] = "Other";
 		$data['type_desc'] = '';
+		$data['type_rip'] = 'Other';
+		$data['type_rip_desc'] = '';
 		while ($arow = $DB->fetch_row()) {
 			if ($arow['keyword'] == 'TYPE') {
 				$data['type_type'] = $arow['name'];
@@ -426,7 +496,16 @@ class mod_gfx extends module {
 					case 'TILES' : $data['type_desc'] = "Backgrounds broken into a set of tiles."; break;
 					case 'ANIGIF' : $data['type_desc'] = "Pre-animated sprites saved as a collection of animated GIFs for easy importing into Game Maker and Multimedia Fusion 2."; break;
 				}
-			}			
+			}
+			
+			if ($arow['keyword'] == 'RIP_TYPE') {
+				$data['type_rip'] = $arow['name'];
+				switch ($arow['name']) {
+					case 'Ripped': $data['type_rip_desc'] = "Sprites ripped directly from a game."; break;
+					case 'Edited' : $data['type_rip_desc'] = "Modification of existing sprites."; break;
+					case 'Original' : $data['type_rip_desc'] = "Sprites that are made completely from scratch."; break;
+				}
+			}
 		}
 		
 		// Version History
@@ -435,7 +514,7 @@ class mod_gfx extends module {
 		$dblist = $this->get_version_history($IN['id']);
 		$rows_returned = $DB->get_num_rows();
 		if ($rows_returned == 0)
-			$data['version_history'] = "<tr><td colspan='2' align='center'>No History</td></tr>";
+			$data['version_history'] = "<tr><td colspan='2' style='text-align:center;'>No History</td></tr>";
 
 		for ($x=0; $x<min(2,$rows_returned); $x++) {
 			$row = $DB->fetch_row($dblist);
@@ -445,7 +524,7 @@ class mod_gfx extends module {
 		}
 		
 		if ($rows_returned > 2)	
-			$data['version_history'] .= "<tr><td colspan='2' align='center'><br /><a href='javascript:version_history()'>
+			$data['version_history'] .= "<tr><td colspan='2' align='center'><br><a href='javascript:version_history()'>
 										 View Complete History</a></td></tr>";
 		
 		return $data;
@@ -476,6 +555,7 @@ class mod_gfx extends module {
 		empty($IN['cat3']) ? $auxdata['cat_gencat'] = array() : $auxdata['cat_gencat'] = $IN['cat3'];
 		empty($IN['cat4']) ? $auxdata['cat_game'] = array() : $auxdata['cat_game'] = $IN['cat4'];
 		empty($IN['cat5']) ? $auxdata['cat_char'] = array() : $auxdata['cat_char'] = $IN['cat5'];
+		$auxdata['cat_franchise'] = $IN['cat6'];
 		
 		return array($RES, $auxdata, $ORIG);
 	}
@@ -496,7 +576,7 @@ class mod_gfx extends module {
 		$RES->insert();
 		
 		$values = array($auxdata['cat_type'], $auxdata['cat_riptype'], $auxdata['cat_gencat'], 
-						$auxdata['cat_game'], $auxdata['cat_char']);
+						$auxdata['cat_game'], $auxdata['cat_char'], $auxdata['cat_franchise']);
 		$this->add_filters($RES->data['rid'], $values);
 		
 		$RES->data['catwords'] = $this->make_catwords( $RES->data['rid'] );
@@ -515,7 +595,7 @@ class mod_gfx extends module {
 		$RES->data['author_override'] = '';
 		if (!empty($IN['author_override'])) {
 			$add_authors = preg_split($STD->get_regex('nat_delim'), $IN['author_override']);
-			$add_authors = @join(', ', $add_authors);
+			$add_authors = join(', ', $add_authors);
 			$RES->data['author_override'] = "{$STD->user['username']}, $add_authors";
 		}
 		
@@ -542,7 +622,7 @@ class mod_gfx extends module {
 		$this->clear_filters($ghost->data['rid']);
 		
 		$values = array($auxdata['cat_type'], $auxdata['cat_riptype'], $auxdata['cat_gencat'], 
-						$auxdata['cat_game'], $auxdata['cat_char']);
+						$auxdata['cat_game'], $auxdata['cat_char'], $auxdata['cat_franchise']);
 		$this->add_filters($ghost->data['rid'], $values);
 		
 		$ghost->data['catwords'] = $this->make_catwords( $ghost->data['rid'] );
@@ -587,7 +667,7 @@ class mod_gfx extends module {
 		$this->clear_filters($IN['rid']);
 		
 		$values = array($auxdata['cat_type'], $auxdata['cat_riptype'], $auxdata['cat_gencat'], 
-						$auxdata['cat_game'], $auxdata['cat_char']);
+						$auxdata['cat_game'], $auxdata['cat_char'], $auxdata['cat_franchise']);
 		$this->add_filters($IN['rid'], $values);
 		
 		// Keywords
