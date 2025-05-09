@@ -21,13 +21,13 @@ Here you can accept or decline new submissions, or modify older ones.  Submissio
  		</tr>
 	  <tr>
  		  <td class='title_fixed' valign='top' style='background-color:#FFD1CF;'>
- 		    Admin Comment
+ 		    <label for="admincomment">Admin Comment</label>
  		  </td>
  		  <td class='field_fixed' style='background-color:#FFD1CF;'>
  		    <input type='hidden' name='rid' id='rid_d' value='' />
  		    <input type='hidden' name='omit_comment' value='0' />
  		    <input type='hidden' name='virus_check' value='1' />
-  		  <textarea name='admincomment' rows='4' cols='30' class='textbox'></textarea>
+  		  <textarea id='admincomment' name='admincomment' rows='4' cols='30' class='textbox'></textarea>
   		  {{dq_override}}
   		</td>
  		</tr>
@@ -68,7 +68,7 @@ Here you can accept or decline new submissions, or modify older ones.  Submissio
  		  <td class='field_fixed'>
   		  <textarea name='admincomment' rows='4' cols='30' class='textbox' onclick="uc_box('oc1');"></textarea>
   		  <br /><input type='checkbox' name='omit_comment' id='oc1' value='1' class='checkbox' checked='checked' /> Do not include comment
-  		  <br /><input type='checkbox' name='virus_check' value='1' class='checkbox' /> I have checked that this file is virus free
+  		  <br /><input type='checkbox' name='virus_check' value='1' class='checkbox' /> I have checked that this file is virus-free
   		  {{dq_override}}
   		</td>
  		</tr>
