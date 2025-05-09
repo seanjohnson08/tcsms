@@ -22,6 +22,14 @@ return <<<HTML
   </td>
 </tr>
 <tr>
+  <td class='title_fixed' valign='top'>
+    Franchise
+  </td>
+  <td class='field_fixed'>
+    {$res['cat3']}
+  </td>
+</tr>
+<tr>
   <td>&nbsp;</td>
   <td>&nbsp;</td>
 </tr>
@@ -35,19 +43,19 @@ return <<<HTML
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Title
+   <label for="title">Title</label>
   </td>
   <td class='field_fixed'>
-    <input type='text' name='title' value="{$res['title']}" size='40' class='textbox' />
+    <input type='text' id='title' name='title' value="{$res['title']}" size='40' class='textbox' />
   </td>
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Creator <a href="javascript:show_hide('f1_h2a');show_hide('f1_h2b');show_hide('f1_h2c');">
+    <label for="author">Creator</label> <a href="javascript:show_hide('f1_h2a');show_hide('f1_h2b');show_hide('f1_h2c');">
 				 <img src='./template/admin/images/info.gif' border='0' alt='[Info]' /></a>
   </td>
   <td class='field_fixed'>
-    <input type='text' name='author' value="{$res['username']}" size='40' class='textbox' /> {$res['usericon']}
+    <input type='text' id="author" name='author' value="{$res['username']}" size='40' class='textbox' /> {$res['usericon']}
   </td>
 </tr>
 <tr id='f1_h2a' style='display:none'>
@@ -64,26 +72,26 @@ return <<<HTML
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Username Override
+    <label for="author_override">Username Override</label>
   </td>
   <td class='field_fixed'>
-    <input type='text' name='author_override' value="{$res['author_override']}" size='40' class='textbox' />
+    <input type='text' id='author_override' name='author_override' value="{$res['author_override']}" size='40' class='textbox' />
   </td>
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Website Override
+    <label for="website_override">Website Override</label>
   </td>
   <td class='field_fixed'>
-    <input type='text' name='website_override' value="{$res['website_override']}" size='40' class='textbox' /> {$res['website']}
+    <input type='text' id='website_override' name='website_override' value="{$res['website_override']}" size='40' class='textbox' /> {$res['website']}
   </td>
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Website URL Override
+    <label for="weburl_override">Website URL Override</label>
   </td>
   <td class='field_fixed'>
-    <input type='text' name='weburl_override' value="{$res['weburl_override']}" size='40' class='textbox' /> {$res['weburl']}
+    <input type='text' id='weburl_override' name='weburl_override' value="{$res['weburl_override']}" size='40' class='textbox' /> {$res['weburl']}
   </td>
 </tr>
 <tr>
@@ -92,10 +100,10 @@ return <<<HTML
 </tr>
 <tr>
   <td class='title_fixed' valign='top'>
-    Description
+    <label for="description">Description</label>
   </td>
   <td class='field_fixed'>
-    <textarea rows='6' cols='38' name='description' class='textbox'>{$res['description']}</textarea>
+    <textarea rows='6' cols='38' id='description' name='description' class='textbox'>{$res['description']}</textarea>
   </td>
 </tr>
 <tr>
