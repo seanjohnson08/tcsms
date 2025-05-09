@@ -22,7 +22,7 @@ class db_driver {
 		global $CFG;
 
 		//$this->connection = @mysql_connect(
-			$this->connection = @mysqli_connect(
+			$this->connection = mysqli_connect(
 			$CFG['db_host'],
 			$CFG['db_user'],
 			$CFG['db_pass']);
@@ -96,7 +96,7 @@ class db_driver {
 			
 			$this->debug_out .= "<tr>
 								   <td colspan='8' bgcolor='$bgcolor1' style='font-size:12pt'><b>MySQL Time:</b> $time</td>
-								 </tr></table><br />";
+								 </tr></table><br>";
 		}
 		
 		// End Debug
@@ -116,14 +116,14 @@ class db_driver {
 		$this->debug_out .= "<table width='95%' border='1' cellpadding='4' cellspacing='0' align='center' style='font-family:verdana; font-size:10pt'>
 							   <tr>
 							     <td colspan='8' bgcolor='#FFFFFF' style='font-size:12pt'><b>Total MySQL Time:</b> {$this->total_time}</td>
-							   </tr></table><br />";
+							   </tr></table><br>";
 		
 		return $this->debug_out;
 	}
 	
 	function fetch_row ($rid='', $type=MYSQLI_ASSOC) {
 		if($type === false){
-			$type = MYSQL_ASSOC;
+			$type = MYSQLI_ASSOC; // PHP 7.x test; had been MYSQL_ASSCO; probably want to remove this logic
 		}
 		
 		if ($rid == '')
@@ -160,19 +160,21 @@ class db_driver {
 			$rid = $this->last_query;
 			
 		//@mysql_free_result($rid);
-		@mysqli_free_result($rid);
+		mysqli_free_result($rid);
 		
 	}
 	
 	function close_db () {
 		
 		reset($this->cache);
-		while (list(,$val) = each($this->cache))
+		//while (list(,$val) = each($this->cache))
+		foreach ( $this->cache as $val )
 			//@mysql_free_result($rid);
-			@mysqli_free_result($rid);
+			if ( isset($rid) && is_resource($rid) ) // 4/16/2025 - PHP 8 upgrade test
+				mysqli_free_result($rid);
 		
 		//@mysql_close($this->connection);
-		@mysqli_close($this->connection);
+		mysqli_close($this->connection);
 	}
 	
 	function get_query_count () {
@@ -189,9 +191,9 @@ class db_driver {
 	}
 	
 	function clean_value ($value) {
-		if (get_magic_quotes_gpc()) {
-			$value = stripslashes ($value);
-		}
+		//if (get_magic_quotes_gpc()) {
+		$value = stripslashes($value);
+		//}
 		
 		//$value = mysql_real_escape_string ($value, $this->connection);
 		$value = mysqli_real_escape_string ($this->connection, $value);
@@ -207,18 +209,18 @@ class db_driver {
 		$errCode = mysqli_errno();
 		$error   = mysqli_error();
 		
-		$html = "<html><head><title>Database Error</title></head>
+		$html = "<!DOCTYPE html><head><title>Database Error</title></head>
 				 <body style='font-family:Arial'><h1>Database Error</h1>
-				 An unrecoverable database error has ouccurred.  Please wait a few minutes and
+				 An unrecoverable database error has occurred.  Please wait a few minutes and
 				 try again.  If the error still persists, please contact the 
 				 <a href='mailto:{$CFG['admin_email']}'>Site Staff</a> with the error information
-				 below.<br /><br /><p align='center'>
+				 below.<br><br><p align='center'>
 				 <table border='0' cellspacing='0' cellpadding='2' width='80%'><tr>
 				 <td width='100%' style='font-family:Courier New'>
 				 $msg<br><br>Mysql Error: $errCode<br>$error
 				 </td></tr></table></p></body></html>";
 		
-		@ob_get_clean();
+		ob_get_clean();
 			 
 		echo $html;
 		
@@ -231,10 +233,11 @@ class db_driver {
 		$values = '';
 		
 		reset ($data);
-		while (list($key,$val) = each($data)) {
+		//while (list($key,$val) = each($data)) {
+		foreach ( $data as $key => $val ) {
 			$fields .= "`$key`,";
 			//$values .= "'" . str_replace("'", "\\'", $val) . "',";
-			$values .= "'" . $this->clean_value ($val) . "',";
+			$values .= "'" . $this->clean_value($val) . "',";
 		}
 		
 		$fields = preg_replace("/,$/", '', $fields);
@@ -248,9 +251,10 @@ class db_driver {
 		$string = '';
 		
 		reset ($data);
-		while (list($key,$val) = each($data)) {
+		//while (list($key,$val) = each($data)) {
+		foreach ( $data as $key => $val ) {
 			//$val = str_replace("'", "\\'", $val);
-			$val = $this->clean_value ($val);
+			$val = $this->clean_value($val);
 			$string .= "$key = '$val',";
 		}
 		
@@ -264,7 +268,8 @@ class db_driver {
 		$string = '';
 		
 		reset($data);
-		while (list($key,$val) = each($data)) {
+		//while (list($key,$val) = each($data)) {
+		foreach ( $data as $key => $val ) {
 			//$val = str_replace("'", "\\'", $val);
 			$val = $this->clean_value ($val);
 			$string .= "$key = '$val' AND ";
@@ -281,7 +286,8 @@ class db_driver {
 	function prepArguments ($args) {
 		$preped = array();
 		reset($args);
-		while (list($key,$val) = each($args))
+		//while (list($key,$val) = each($args))
+		foreach ( $args as $key => $val )
 			$preped[$key] = $this->db->quote($val);
 		return $preped;
 	}
@@ -314,7 +320,8 @@ class db_driver {
 	function makeSimpleSetList ($set_args) {
 		$setStr = '';
 		reset($set_args);
-		while (list($key,$val) = each($set_args)) {
+		//while (list($key,$val) = each($set_args)) {
+		foreach ( $set_args as $key => $val ) {
 			if ($setStr != '')
 				$setStr .= ', ';
 			$setStr .= $key . ' = ' . $val;
@@ -326,7 +333,8 @@ class db_driver {
 	function makeSimpleWhere ($args) {
 		$where = '';
 		reset($args);
-		while (list($key,$val) = each($args)) {
+		//while (list($key,$val) = each($args)) {
+		foreach ( $args as $key => $val ) {
 			if ($where != '')
 				$where .= ' AND ';
 			$where .= $key . ' = ' . $val;
@@ -337,7 +345,8 @@ class db_driver {
 	function makeSimpleSelectString ($select_args) {
 		$selStr = '';
 		reset($select_args);
-		while (list($key,$val) = each($select_args)) {
+		//while (list($key,$val) = each($select_args)) {
+		foreach ( $select_args as $key => $val ) {
 			if ($selStr != '')
 				$selStr .= ', ';
 			if (is_numeric($key))
@@ -355,7 +364,8 @@ class db_driver {
 			
 		$tableStr = '';
 		reset ($table_args);
-		while (list($key,$val) = each($table_args)) {
+		//while (list($key,$val) = each($table_args)) {
+		foreach ( $table_args as $key => $val ) {
 			if ($tableStr != '')
 				$tableStr .= ', ';
 			$tableStr .= $val . ' ' . $key;
