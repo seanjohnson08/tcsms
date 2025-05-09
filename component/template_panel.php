@@ -21,7 +21,8 @@ $this->html .= $STD->global_template->panel_column_left_start();
 	$this->html .= $pt->link_entry("<a href=\"{$STD->tags['root_url']}act=main\">Updates</a>");
 	$this->html .= $pt->link_entry("<a href=\"{$STD->tags['root_url']}act=staff\">Staff</a>");
 	$this->html .= $pt->link_entry("<a href=\"{$STD->tags['root_url']}act=submit&amp;param=01\">Submission Rules</a>");
-	$this->html .= $pt->link_entry("<a href=\"http://mfgg.taloncrossing.com\">Message Board</a>");
+	$this->html .= $pt->link_entry("<a href=\"http://mfgg.taloncrossing.com\"><strong>Forums</strong></a>");
+        $this->html .= $pt->link_entry("<a href=\"https://forums.mfgg.net/showthread.php?tid=76"><strong>Discord</strong></a>);
 	$this->html .= $pt->link_region_end();
 	$this->html .= $STD->global_template->panel_end();
 
