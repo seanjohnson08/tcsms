@@ -56,7 +56,8 @@ class tag {
 			return true;
 		else {
 			reset($this->tagdef);
-			while (list(,$v) = each($this->tagdef)) {
+			//while (list(,$v) = each($this->tagdef)) {
+			foreach ( $this->tagdef as $v ) {
 				if ($v[0] == $tagid)
 					return true;
 			}
@@ -94,7 +95,7 @@ class tag {
 	// MIXED get_id_by_tag (MIXED tag)
 	//
 	// $tag: Tag Name, Tag ID, or Array of mixed Tag Names and IDs
-	// Takes a tag name and returns its equivilient ID.  If the tag name provided is allready a valid ID,
+	// Takes a tag name and returns its equivalent ID.  If the tag name provided is allready a valid ID,
 	// the ID is returned.  If the tag name is an array, an array of corresponding tag IDs is returned.  If
 	// a tag name within an array is not valid, it is removed.  Otherwise any invalid tag name passed is
 	// returned as 0.
@@ -106,7 +107,8 @@ class tag {
 		
 		if (is_array($tag)) {
 			reset($tag);
-			while (list($k,$v) = each($tag)) {
+			//while (list($k,$v) = each($tag)) {
+			foreach ( $this->tag as $k => $v ) {
 				$tag[$k] = $this->get_id_by_tag($v);
 				
 				if ($tag[$k] == 0)
@@ -117,7 +119,8 @@ class tag {
 		} else {
 			
 			reset($this->tagdef);
-			while (list($k,$v) = each($this->tagdef)) {
+			//while (list($k,$v) = each($this->tagdef)) {
+			foreach ( $this->tagdef as $k => $v ) {
 				if ($tag == $v[0])
 					return $k;
 			}
@@ -138,7 +141,8 @@ class tag {
 	function get_parent_trace_rec ($id, $nodelist, &$trace) {
 		
 		reset($nodelist);
-		while (list($k,$v) = each($nodelist)) {
+		//while (list($k,$v) = each($nodelist)) {
+		foreach ( $nodelist as $k => $v ) {
 			if ($k == $this->tagdef[$id][0]) {
 				array_push($trace, $k);
 				return true;
@@ -166,7 +170,8 @@ class tag {
 			$nodelist = $this->nodelist;
 		
 		reset($nodelist);
-		while (list($k,$v) = each($nodelist)) {
+		//while (list($k,$v) = each($nodelist)) {
+		foreach ( $nodelist as $k => $v ) {
 			if ($k == $this->tagdef[$id][0]) {
 				return $v;
 			} elseif (sizeof($v) > 0) {
