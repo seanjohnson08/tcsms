@@ -20,24 +20,25 @@ class module {
 			$TPL->preprocess_error("Bad filetype supplied to file check routine.");
 		
 		if (empty($_FILES[$file]))
-			$this->error_save("No file supplied.", $ecode);
+			$STD->error("No file supplied.");
+			//$this->error_save("No file supplied.", $ecode);
 		
 		// Rudimentary File Check
 		switch ($_FILES[$file]['error']) {
 			case 1: $this->error_save("A file you attempted to upload exceeded the maximum file size allowed by the server.  Please contact a staff member about your submission.", $ecode); break;
 			case 2: $this->error_save("A file you attempted to upload exceeded the maximum file size allowed by the server.  Please contact a staff member about your submission.", $ecode); break;
-			case 3: $this->error_save("Your file did not finish transfering to the server.  Please try again and contact a staff member if the problem persists.", $ecode); break;
+			case 3: $this->error_save("Your file did not finish transferring to the server.  Please try again and contact a staff member if the problem persists.", $ecode); break;
 			case 4: $this->error_save("A file you attempted to upload was not found or doesn't exist.  Check that the path to the file and the filename are correct.", $ecode); break;
 			case 6: $this->error_save("The server was not able to appropriately handle your submission.  Please contact a staff member.", $ecode); break;
 		}
 			
 		// Mime Check
 		if (isset($this->file_restrictions[$type]['mime'])) {
-			$exts = @join(', ', $this->file_restrictions[$type]['ext']);
+			$exts = join(', ', $this->file_restrictions[$type]['ext']);
 			$pred_type = $this->mime_check($_FILES[$file]['tmp_name'], $_FILES[$file]['name'], $_FILES[$file]['type']);
 			if (!in_array($pred_type, $this->file_restrictions[$type]['mime']))
 				$this->error_save("Invalid file type for file <b>{$_FILES[$file]['name']}</b>, file must 
-					be of one of the following types: $exts.<br /><br />Your file is of type: 
+					be of one of the following types: $exts.<br><br>Your file is of type: 
 					<b>{$_FILES[$file]['type']}</b>", $ecode);
 		}
 		
@@ -53,7 +54,7 @@ class module {
 					size of <b>{$sizes[3]}</b> for this type.", $ecode);
 		}
 			
-		// Dimention Check
+		// Dimension Check
 		if (isset($this->file_restrictions[$type]['width'])) {
 			$width = $this->file_restrictions[$type]['width'];
 			$info = getimagesize($_FILES[$file]['tmp_name']);
@@ -76,17 +77,24 @@ class module {
 	function move_file ($file, $type, $ecode='') {
 		global $IN, $STD, $TPL;
 		
-		// Check that directories exist
-		if (!file_exists(ROOT_PATH."$type/{$IN['c']}"))
-			$STD->template->preprocess_error("Destination directory \"$type/{$IN['c']}\" does not exist.");
-		
-		if (empty($_FILES[$file]))
-			$this->error_save("No file supplied.", $ecode);
-		
-		// Move File
-		$fname = $STD->safe_file_name($_FILES[$file]['name']);
-		if (!move_uploaded_file($_FILES[$file]['tmp_name'], ROOT_PATH."$type/{$IN['c']}/$fname"))
-			$this->error_save("Could not relocate one or more of your files to their proper locations.  Please contact a staff member.", $ecode);
+		//if(isset($_POST['subform']))
+		//{
+			// Check that directories exist
+			if (!file_exists(ROOT_PATH."$type/{$IN['c']}"))
+				$STD->template->preprocess_error("Destination directory \"$type/{$IN['c']}\" does not exist.");
+			
+			if (empty($_FILES[$file]))
+				$this->error_save("No file supplied.", $ecode);
+			
+			// Move File
+			$fname = $STD->safe_file_name($_FILES[$file]['name']);
+			if (!move_uploaded_file($_FILES[$file]['tmp_name'], ROOT_PATH."$type/{$IN['c']}/$fname"))
+				$this->error_save("Could not relocate one or more of your files to their proper locations.  Please contact a staff member.", $ecode);
+		//}
+		//else
+		//{
+		//	$STD->error("TEST MESSAGE: MFGG Staffs are currently working on a better upload system, please check again later.");
+		//}
 		
 		return $fname;
 	}
@@ -184,16 +192,16 @@ class module {
 			$skin = $STD->tags['skin'];
 			
 		if (!empty($row['thumbnail']) && file_exists(ROOT_PATH."thumbnail/{$row['type']}/{$row['thumbnail']}"))
-			return "<img src='{$CFG['root_url']}/thumbnail/{$row['type']}/{$row['thumbnail']}' border='0' alt='Thumbnail' />";
+			return "<img src='{$CFG['root_url']}/thumbnail/{$row['type']}/{$row['thumbnail']}' alt='Thumbnail'>";
 		else
-			return "<img src='{$CFG['root_url']}/template/$skin/images/t_unavailable.png' border='0' alt='Thumbnail Unavailable' />";
+			return "<img src='{$CFG['root_url']}/template/$skin/images/t_unavailable.png' alt='Thumbnail Unavailable'>";
 	}
 	
 	function get_image (&$row, $type) {
 		global $CFG, $IN;
 		
 		if (!empty($row[$type]) && file_exists(ROOT_PATH."$type/{$IN['c']}/{$row[$type]}"))
-			return "<img src='{$CFG['root_url']}/$type/{$IN['c']}/{$row[$type]}' border='0' alt='$type' />";
+			return "<img id='screenshot' src='{$CFG['root_url']}/$type/{$IN['c']}/{$row[$type]}' alt='$type'>";
 		else
 			return '';
 	}
@@ -217,7 +225,7 @@ class module {
 			$addr = str_replace('.', ' _DOT_ ', $addr);
 			$uaddr = str_replace(' ', '%20', $addr);
 			$email = "<a href='mailto:$uaddr'>
-				<img src='{$STD->tags['image_path']}/email.gif' border='0' alt='[E]' title='$addr' /></a>";
+				<img src='{$STD->tags['image_path']}/email.gif' alt='[E]' title='$addr'></a>";
 		}
 		
 		return $email;
@@ -232,10 +240,10 @@ class module {
 		empty($row[$prefix.'website'])
 			? $website = ''
 			: $website = "
-				<img src='{$STD->tags['image_path']}/$ws_icon' border='0' alt='[W]' title='{$row[$prefix.'website']}' />";
+				<img src='{$STD->tags['image_path']}/$ws_icon' alt='[W]' title='{$row[$prefix.'website']}'>";
 		if (!empty($row[$prefix.'website_override']))
 			$website = "
-				<img src='{$STD->tags['image_path']}/$ws_icon' border='0' alt='[W]' title='{$row[$prefix.'website_override']}' />";
+				<img src='{$STD->tags['image_path']}/$ws_icon' alt='[W]' title='{$row[$prefix.'website_override']}'>";
 		if (!empty($row[$prefix.'weburl_override']))
 			$website = "<a href='{$row[$prefix.'weburl_override']}'>$website</a>";
 		elseif (!empty($row[$prefix.'weburl']))
@@ -333,7 +341,8 @@ class module {
 		global $CFG, $DB;
 		
 		$da = array();
-		while (list(,$v) = each($data)) {
+		//while (list(,$v) = each($data)) {
+		foreach ( $data as $v ) {
 			if (is_array($v))
 				for ($x=0; $x<sizeof($v); $x++)
 					$da[] = "('{$v[$x]}','$resid')";
@@ -341,7 +350,7 @@ class module {
 				$da[] = "('$v','$resid')";
 		}
 
-		$ins = @join(',', $da);
+		$ins = join(',', $da);
 		
 		$DB->query("INSERT INTO {$CFG['db_pfx']}_filter_multi VALUES $ins");
 	}
@@ -375,7 +384,8 @@ class module {
 			
 			$stags = explode(",", strtolower( $row['search_tags'] ));
 			
-			while (list(,$v) = each ($stags)) {
+			//while (list(,$v) = each ($stags)) {
+			foreach ( $stags as $v ) {
 				if ( empty($v) )
 					continue;
 				$autokeywords[] = $v;
@@ -383,7 +393,7 @@ class module {
 		}
 
 		$autokeywords = array_unique($autokeywords);
-		$keywords = @join(",", $autokeywords);
+		$keywords = join(",", $autokeywords);
 		
 		return $keywords;
 	}
@@ -396,7 +406,7 @@ class module {
 			$keywords[$x] = preg_replace( "/^S_/i", "", $keywords[$x] );
 		}
 		
-		return @join(",", $keywords);
+		return join(",", $keywords);
 	}
 	
 	// ARRAY make_cat_tags (INT cat [, ARRAY tags])
@@ -412,7 +422,8 @@ class module {
 		$selected = 0;
 		
 		reset ($data);
-		while (list(,$v) = each($data)) {
+		//while (list(,$v) = each($data)) {
+		foreach ( $data as $v ) {
 			if ($v['keyword'] == $gkey) {
 				$varr[] = $v['fid'];
 				$narr[] = $v['name'];
@@ -430,7 +441,8 @@ class module {
 		$varr = array(); $narr = array(); $sarr = array();
 		
 		reset ($data);
-		while (list(,$v) = each($data)) {
+		//while (list(,$v) = each($data)) {
+		foreach ( $data as $v ) {
 			if ($v['keyword'] == $gkey) {
 				$varr[] = $v['fid'];
 				$narr[] = $v['name'];
