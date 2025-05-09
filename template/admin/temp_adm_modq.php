@@ -5,7 +5,7 @@ class template_adm_modq {
 function message ($message) {
 global $STD;
 return <<<HTML
-<br />
+<br>
 {$message}
 HTML;
 }
@@ -14,48 +14,48 @@ function sub_list_header ($olinks, $tab_index, $tab_url, $boxes, $type) {
 global $STD;
 return <<<HTML
 Here you can accept or decline new submissions, or modify older ones.  Submissions that have been updated or reported will also appear at the top of the queue.
-<br />
-<br />
+<br>
+<br>
 <div id="menu_1" align="center" style="display:none">
 <form method="post" action="{$STD->tags['root_url']}act=modq&amp;param=05&amp;c={$type}">
 <table cellspacing="0" cellpadding="2" width="90%" style="border:2px solid #FF6169">
     <tr>
  		  <td colspan="2" class="header" style="background-color: #FF6169; color:white;">
- 		    <table border="0" cellspacing="0" cellpadding="0" width="100%">
+ 		    <table cellspacing="0" cellpadding="0" width="100%">
  		      <tr>
  		        <td width="50%">
  		          Remove Item
  		        </td>
  		        <td width="50%" align="right">
  		          <a href="javascript:show_hide(1);show_hide(2);">
- 		            <img src="{$STD->tags['image_path']}/red_close.gif" border="0" alt="[X]" title="Close Window" /></a>
+ 		            <img src="{$STD->tags['image_path']}/red_close.gif" alt="[X]" title="Close Window"></a>
  		        </td>
  		      </tr>
  		    </table>
  		  </td>
  		</tr>
 	  <tr>
- 		  <td class="title_fixed" valign="top" style="background-color:#FFD1CF;">
- 		    Admin Comment
+ 		  <td class="title_fixed" style="background-color:#FFD1CF;vertical-align:top;">
+ 		    <label for="admincomment">Admin Comment</label>
  		  </td>
  		  <td class="field_fixed" style="background-color:#FFD1CF;">
- 		    <input type="hidden" name="rid" id="rid_d" value="" />
- 		    <input type="hidden" name="omit_comment" value="0" />
- 		    <input type="hidden" name="virus_check" value="1" />
-  		  <textarea name="admincomment" rows="4" cols="30" class="textbox"></textarea>
+ 		    <input type="hidden" name="rid" id="rid_d" value="">
+ 		    <input type="hidden" name="omit_comment" value="0">
+ 		    <input type="hidden" name="virus_check" value="1">
+  		  <textarea id="admincomment" name="admincomment" rows="4" cols="30" class="textbox"></textarea>
   		  {$boxes['dq']}
   		</td>
  		</tr>
  		<tr>
- 		  <td class="title_fixed" valign="top" style="background-color:#FFD1CF;">
+ 		  <td class="title_fixed" style="background-color:#FFD1CF;">
  		    Complete Form
  		  </td>
  		  <td class="field_fixed" style="background-color:#FFD1CF;">
-  		  <input type="submit" value="DROP Record" class="button" style="background-color: #FF6169; color: white" />
+  		  <input type="submit" value="DROP Record" class="button" style="background-color: #FF6169; color: white">
   		</td>
  		</tr>
  	</table>
- 	<br />
+ 	<br>
 </form>
 </div>
 
@@ -71,34 +71,34 @@ Here you can accept or decline new submissions, or modify older ones.  Submissio
  		        </td>
  		        <td width="50%" align="right">
  		          <a href="javascript:show_hide(3);show_hide(2);">
- 		            <img src="{$STD->tags['image_path']}/blue_close.gif" border="0" alt="[X]" title="Close Window" /></a>
+ 		            <img src="{$STD->tags['image_path']}/blue_close.gif" alt="[X]" title="Close Window"></a>
  		        </td>
  		      </tr>
  		    </table>
  		  </td>
  		</tr>
 	  <tr>
- 		  <td class="title_fixed" valign="top">
- 		    Admin Comment
+ 		  <td class="title_fixed" style="vertical-align:top;">
+ 		    <label for="admincomment">Admin Comment</label>
  		  </td>
  		  <td class="field_fixed">
-  		  <textarea name="admincomment" rows="4" cols="30" class="textbox" onclick="uc_box("oc1");"></textarea>
-  		  <br /><input type="checkbox" name="omit_comment" id="oc1" value="1" class="checkbox" checked="checked" /> Do not include comment
+  		  <textarea id="admincomment" name="admincomment" rows="4" cols="30" class="textbox" onclick="uc_box("oc1");"></textarea>
+  		  <br><input type="checkbox" name="omit_comment" id="oc1" title="Do not include comment" value="1" class="checkbox" checked="checked"> Do not include comment
   		  {$boxes['vc']}
   		  {$boxes['dq']}
   		</td>
  		</tr>
  		<tr>
- 		  <td class="title_fixed" valign="top">
+ 		  <td class="title_fixed">
  		    Complete Form
  		  </td>
  		  <td class="field_fixed">
- 		    <input type="hidden" name="rid" id="rid_a" value="" />
-  		  <input type="submit" value="Accept Submission" class="button" />
+ 		    <input type="hidden" name="rid" id="rid_a" value="">
+  		  <input type="submit" value="Accept Submission" class="button">
   		</td>
  		</tr>
  	</table>
- 	<br />
+ 	<br>
 </form>
 </div>
 
@@ -114,33 +114,33 @@ Here you can accept or decline new submissions, or modify older ones.  Submissio
  		        </td>
  		        <td width="50%" align="right">
  		          <a href="javascript:show_hide(4);show_hide(2);">
- 		            <img src="{$STD->tags['image_path']}/blue_close.gif" border="0" alt="[X]" title="Close Window" /></a>
+ 		            <img src="{$STD->tags['image_path']}/blue_close.gif" alt="[X]" title="Close Window"></a>
  		        </td>
  		      </tr>
  		    </table>
  		  </td>
  		</tr>
 	  <tr>
- 		  <td class="title_fixed" valign="top">
- 		    Admin Comment
+ 		  <td class="title_fixed" style="vertical-align:top;">
+ 		    <label for="admincomment">Admin Comment</label>
  		  </td>
  		  <td class="field_fixed">
- 		    <input type="hidden" name="rid" id="rid_r" value="" />
- 		    <input type="hidden" name="omit_comment" value="0" />
- 		    <input type="hidden" name="virus_check" value="1" />
-  		  <textarea name="admincomment" rows="4" cols="30" class="textbox"></textarea>
+ 		    <input type="hidden" name="rid" id="rid_r" value="">
+ 		    <input type="hidden" name="omit_comment" value="0">
+ 		    <input type="hidden" name="virus_check" value="1">
+  		  <textarea id="admincomment" name="admincomment" rows="4" cols="30" class="textbox"></textarea>
   		</td>
  		</tr>
  		<tr>
- 		  <td class="title_fixed" valign="top">
+ 		  <td class="title_fixed">
  		    Complete Form
  		  </td>
  		  <td class="field_fixed">
-  		  <input type="submit" value="Re-Queue Submission" class="button" />
+  		  <input type="submit" value="Re-Queue Submission" class="button">
   		</td>
  		</tr>
  	</table>
- 	<br />
+ 	<br>
 </form>
 </div>
 
@@ -174,7 +174,7 @@ return <<<HTML
 </table>
 </div>
 <div style="width: 90%; text-align: left">Pages: {$pages}</div>
-<br />
+<br>
 </div>
 HTML;
 }
@@ -256,9 +256,9 @@ return <<<HTML
   }
 </script>
 <form method='post' name='res_edit' action="{$form['url']}&amp;param=03" enctype='multipart/form-data' onsubmit="return check_submit()">
-  <input type='hidden' name='rid' value="{$res['rid']}" />
-  <input type='hidden' name='c' value="{$res['type']}" />
-  <input type='hidden' name='security_token' value="{$form['security_token']}" />
+  <input type='hidden' name='rid' value="{$res['rid']}">
+  <input type='hidden' name='c' value="{$res['type']}">
+  <input type='hidden' name='security_token' value="{$form['security_token']}">
 	<div align='center'>
 	  <div id='ghost' style="{$form['ghost_style']}">
 	  &nbsp;
@@ -293,12 +293,12 @@ function edit_form_footer ($res, $form) {
 global $STD;
 return <<<HTML
   		<tr>
-  		  <td class='title_fixed' valign='top'>
-  		    Admin Comment <a href='javascript:show_hide(18);'><img src='{$STD->tags['image_path']}/info.gif' border='0' alt='?' /></a>
+  		  <td class='title_fixed' style="vertical-align:top;">
+  		    <label for="admincomment">Admin Comment</label> <a href='javascript:show_hide(18);'><img src='{$STD->tags['image_path']}/info.gif' alt='?'></a>
   		  </td>
   		  <td class='field_fixed'>
-  		    <textarea name='admincomment' rows='4' cols='30' class='textbox'></textarea>
-  		    <br /><input type='checkbox' name='omit_comment' value='1' class='checkbox' /> Do not inform the user of this modification
+  		    <textarea id="admincomment" name='admincomment' rows='4' cols='30' class='textbox'></textarea>
+  		    <br><input type='checkbox' name='omit_comment' title="Do not include comment" value='1' class='checkbox'> Do not inform the user of this modification
   		  </td>
   		</tr>
   		<tr id='menu_18' style='display:none'>
@@ -318,11 +318,11 @@ return <<<HTML
   		  </td>
   		</tr>
   		<tr style="{$form['ghost_style']}">
-	      <td class='title_fixed' valign='top'>
-	        User-Supplied Update Reason <a href='javascript:show_hide(20);'><img src='{$STD->tags['image_path']}/info.gif' border='0' alt='?' /></a>
+	      <td class='title_fixed'>
+	        <label for='reason'>User-Supplied Update Reason</label> <a href='javascript:show_hide(20);'><img src='{$STD->tags['image_path']}/info.gif' alt='?'></a>
 	      </td>
 	      <td class='field_fixed' valign='top'>
-	        <textarea name='reason' class='textbox' rows='4' cols='40' disabled='disabled' style='background-color:#EEEEEE'>{$res['update_reason']}</textarea>
+	        <textarea id='reason' name='reason' class='textbox' rows='4' cols='40' disabled='disabled' style='background-color:#EEEEEE'>{$res['update_reason']}</textarea>
 	      </td>
 	    </tr>
 	    <tr id='menu_20' style='display:none'>
@@ -335,10 +335,10 @@ return <<<HTML
   		</tr>
   		<tr style="{$form['ghost_style']}">
 	      <td class='title_fixed' valign='top'>
-	        Restore Submission <a href='javascript:show_hide(19);'><img src='{$STD->tags['image_path']}/info.gif' border='0' alt='?' /></a>
+	        Restore Submission <a href='javascript:show_hide(19);'><img src='{$STD->tags['image_path']}/info.gif' alt='?'></a>
 	      </td>
-	      <td class='field_fixed' valign='top'>
-	        <input type='submit' value='Restore' class='button' onclick='check_restore()' />
+	      <td class='field_fixed'>
+	        <input type='submit' value='Restore' class='button' onclick='check_restore()'>
 	      </td>
 	    </tr>
 	    <tr id='menu_19' style='display:none'>
@@ -362,8 +362,8 @@ return <<<HTML
   		    Complete Form
   		  </td>
   		  <td class='field_fixed'>
-          <input type='submit' class='button' value='Update Record' onclick='return check_move();' />
-		  <input name="dq_override" value="1" type="hidden" />
+          <input type='submit' class='button' value='Update Record' onclick='return check_move();'>
+		  <input name="dq_override" value="1" type="hidden">
           <input type='submit' class='button' value='DROP Record' style='background-color: #FF6169; color: white' onclick='return check_drop();' />
   		  </td>
   		</tr>
@@ -377,11 +377,11 @@ function create ($url, $token, $type) {
 global $STD;
 return <<<HTML
 Select a root type for the new submission
-<br /><br />
+<br><br>
 <div align='center'>
   <form method='post' action='{$url}'>
-  <input type='hidden' name='security_token' value='{$token}' />
-  <table border='0' cellspacing='0' cellpadding='1' width='90%'>
+  <input type='hidden' name='security_token' value='{$token}'>
+  <table cellspacing='0' cellpadding='1' width='90%'>
     <tr>
       <td class='title_fixed'>
         Root Type
@@ -395,7 +395,7 @@ Select a root type for the new submission
         Continue
       </td>
       <td class='field_fixed'>
-        <input type='submit' value='Create Submission' class='button' />
+        <input type='submit' value='Create Submission' class='button'>
       </td>
     </tr>
   </table>
