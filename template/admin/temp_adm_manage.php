@@ -5,7 +5,7 @@ class template_adm_manage {
 function message ($message) {
 global $STD;
 return <<<HTML
-<br />
+<br>
 {$message}
 HTML;
 }
@@ -15,7 +15,7 @@ global $STD;
 return <<<HTML
 <form method="post" action="{$STD->tags['root_url']}act=manage&amp;param=06">
 <input type="hidden" name="security_token" value="{$token}" />
-<br />
+<br>
 <div class="rowfield" style="margin-left:auto; margin-right:auto">
 <div class="rowtitle">Turn site online or offline</div>
 <table class="rowtable" cellspacing="1">
@@ -24,9 +24,9 @@ return <<<HTML
   <td width="70%" class="rowcell2">{$form_elements['offline']}</td>
 </tr>
 <tr>
-  <td class="rowcell3">Offline Message</td>
+  <td class="rowcell3"><label for="message">Offline Message</label></td>
   <td class="rowcell2">
-    <textarea name="message" rows="10" cols="50" class="textbox">{$data['message']}</textarea>
+    <textarea id="message" name="message" rows="10" cols="50" class="textbox">{$data['message']}</textarea>
   </td>
 </tr>
 <tr>
@@ -36,7 +36,7 @@ return <<<HTML
 </table>
 </div>
 </form>
-<br />
+<br>
 HTML;
 }
 
@@ -44,7 +44,7 @@ function msg_list_header ($tab_index, $tab_url, $olinks) {
 global $STD;
 return <<<HTML
 <div align="center">
-<br />
+<br>
 <div style="width: 90%">
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 <tr>
@@ -71,7 +71,7 @@ return <<<HTML
 </table>
 </div>
 <div style="width: 90%; text-align: left">Pages: {$pages}</div>
-<br />
+<br>
 </div>
 HTML;
 }
@@ -93,7 +93,7 @@ global $STD;
 return <<<HTML
 After handling a message, the message should be closed so it isn't responded to by multiple staff members.  After being closed, the message will be archived for future review.
 <div align="center">
-<br />
+<br>
 <form method="post" action="{$close_url}">
 <table border="0" cellspacing="0" cellpadding="1" width="90%">
 <tr>
@@ -121,7 +121,7 @@ After handling a message, the message should be closed so it isn't responded to 
   <td width="80%" class="field">&nbsp;</td>
 </tr>
 <tr>
-  <td width="20%" class="title" valign="top">Message</td>
+  <td width="20%" class="title">Message</td>
   <td width="80%" class="field" style="background-color:#FFFFFF; border:1px solid black; color:#000000;">
     {$msg['message']}
   </td>
@@ -139,7 +139,7 @@ After handling a message, the message should be closed so it isn't responded to 
   <td width="80%" class="field">{$msg['close_date']}</td>
 </tr>
 <tr style="{$msg['show_close']}">
-  <td width="20%" class="title" valign="top">Staff Notes</td>
+  <td width="20%" class="title">Staff Notes</td>
   <td width="80%" class="field" style="background-color:#FFFFFF; border:1px solid black; color:#000000;">
     {$msg['admin_comment']}
   </td>
@@ -153,7 +153,7 @@ After handling a message, the message should be closed so it isn't responded to 
   <td width="80%" class="field">&nbsp;</td>
 </tr>
 <tr>
-  <td width="20%" class="title" valign="top">Actions</td>
+  <td width="20%" class="title">Actions</td>
   <td width="80%" class="field">{$msg['actions']}</td>
 </tr>
 <tr>
@@ -168,13 +168,13 @@ After handling a message, the message should be closed so it isn't responded to 
 <td>&nbsp;</td>
 </tr>
 <tr id="close_frm3" style="display:none">
-  <td width="20%" class="title" valign="top">Description of Resolution</td>
-  <td width="80%" class="field"><textarea rows="6" cols="40" name="resolution" class="textbox"></textarea></td>
+  <td width="20%" class="title"><label for="resolution">Description of Resolution</label></td>
+  <td width="80%" class="field"><textarea rows="6" cols="40" id="resolution" name="resolution" class="textbox"></textarea></td>
 </tr>
 <tr id="close_frm5" style="display:none">
-  <td width="20%" class="title" valign="top">Send to user?</td>
-  <td width="80%" class="field"><input type="radio" name="inform" value="yes" checked="checked" /> Yes 
-    <input type="radio" name="inform" value="no" /> No<br />&nbsp;</td>
+  <td width="20%" class="title">Send to user?</td>
+  <td width="80%" class="field"><input type="radio" name="inform" title="Send to user" value="yes" checked="checked" /> Yes 
+    <input type="radio" name="inform" title="Don't send to user" value="no"> No<br>&nbsp;</td>
 </tr>
 <tr id="close_frm4" style="display:none">
   <td width="20%" class="title">Submit</td>
