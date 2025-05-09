@@ -7,8 +7,8 @@ require "./file.lib.php";
 
 $STD = new std;
 
-$dbc = mysql_connect("localhost", "mfgg", "gYh7r78$") or mysql_error();
-mysql_select_db("mfgg_mainsite", $dbc) or mysql_error($dbc);
+$dbc = mysql_connect("localhost", "user", "password") or mysql_error();
+mysql_select_db("dbname", $dbc) or mysql_error($dbc);
 
 $do = new directoryObject( $_SERVER['DOCUMENT_ROOT'] . "/file/2" );
 $flist = $do->traverse();
