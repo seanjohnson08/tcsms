@@ -5,7 +5,7 @@ class template_adm_news {
 function message ($message) {
 global $STD;
 return <<<HTML
-<br />
+<br>
 {$message}
 HTML;
 }
@@ -17,15 +17,15 @@ Write a new news entry here.  {%recent_updates%} will insert the Recent Updates 
 <form method="post" action="{$STD->tags['root_url']}act=news&amp;param=02">
 <input type="hidden" name="security_token" value="{$token}" />
 <div align="center">
-<br />
-<table border="0" cellspacing="0" cellpadding="1" width="90%">
+<br>
+<table cellspacing="0" cellpadding="1" style="width:90%;">
 <tr>
-  <td width="30%" class="title">Title</td>
-  <td width="70%" class="field"><input type="text" name="title" size="40" class="textbox" /></td>
+  <td width="30%" class="title"><label for="title">Title</label></td>
+  <td width="70%" class="field"><input type="text" id="title" name="title" size="40" class="textbox" /></td>
 </tr>
 <tr>
-  <td width="30%" class="title">Content</td>
-  <td width="70%" class="field"><textarea name="content" rows="8" cols="40" class="textbox"></textarea></td>
+  <td width="30%" class="title"><label for="content">Content</label></td>
+  <td width="70%" class="field"><textarea id="content" name="content" rows="8" cols="40" class="textbox"></textarea></td>
 </tr>
 <tr>
   <td width="30%" class="title">&nbsp;</td>
@@ -46,14 +46,14 @@ global $STD;
 return <<<HTML
 Edit or remove news entries.
 <div align='center'>
-<br />
+<br>
 <div class="rowfield">
 <table class="rowtable" cellspacing="1">
 <tr>
-  <td class="rowtitle" width="60%"><a href="{$olinks['t']['url']}">Title</a> {$olinks['t']['img']}</td>
-  <td class="rowtitle" width="18%"><a href="{$olinks['u']['url']}">Author</a> {$olinks['u']['img']}</td>
-  <td class="rowtitle" width="12%"><a href="{$olinks['d']['url']}">Date</a> {$olinks['d']['img']}</td>
-  <td class="rowtitle" width="10%">&nbsp;</td>
+  <td class="rowtitle" style="width:60%;"><a href="{$olinks['t']['url']}">Title</a> {$olinks['t']['img']}</td>
+  <td class="rowtitle" style="width:18%;"><a href="{$olinks['u']['url']}">Author</a> {$olinks['u']['img']}</td>
+  <td class="rowtitle" style="width:12%;"><a href="{$olinks['d']['url']}">Date</a> {$olinks['d']['img']}</td>
+  <td class="rowtitle" style="width:10%;">&nbsp;</td>
 </tr>
 HTML;
 }
@@ -64,7 +64,7 @@ return <<<HTML
 </table>
 </div>
 <div style="width: 90%; text-align: left">Pages: {$pages}</div>
-<br />
+<br>
 </div>
 HTML;
 }
@@ -89,8 +89,8 @@ Write a new news entry here.
 <input type="hidden" name="security_token" value="{$token}" />
 <input type="hidden" name="nid" value="{$news["nid"]}" />
 <div align="center">
-<br />
-<table border="0" cellspacing="0" cellpadding="1" width="90%">
+<br>
+<table cellspacing="0" cellpadding="1" width="90%">
 <tr>
   <td width="30%" class="title">Title</td>
   <td width="70%" class="field"><input type="text" name="title" size="40" value="{$news['title']}" class="textbox" /></td>
