@@ -98,7 +98,7 @@ class mod_howtos extends module {
 		global $IN, $STD;
 		
 		// Check for completed required fields
-		if (empty($IN['cat1']))
+		if (empty($IN['cat1']) || empty($IN['cat2']))
 			$this->error_save("You must chose a value for the target application", 'submit');
 		
 		if (empty($IN['title']))
@@ -186,7 +186,8 @@ class mod_howtos extends module {
 		
 		$module = $STD->modules->get_module($data['type']);
 		
-		$data['type_name'] = $module['full_name'];
+		if (!empty($module['full_name'])) // 4/9/2025 test fix
+			$data['type_name'] = $module['full_name'];
 		
 		return $data;
 	}
@@ -223,12 +224,16 @@ class mod_howtos extends module {
 			$err = $session->data['err_save'];
 			if (!empty($err['cat1']))
 				$selected = array_merge($selected, $err['cat1']);
+			if (isset($err['cat2']))
+				$selected = array_merge($selected, $err['cat2']);
 		}
 		
 		$data['cat1'] = $this->make_catsetmulti('TARGET_APP', $access, $selected);
-		
+		$data['cat2'] = $this->make_catset('FRANCHISE', $access, $selected);
+
 		$data['cat1'] = $STD->make_checkboxlist('cat1[]', $data['cat1']['value'], $data['cat1']['name'], $data['cat1']['sel']);
-		
+		$data['cat2'] = $STD->make_select_box('cat2', $data['cat2']['value'], $data['cat2']['name'], $data['cat2']['sel'], 'selectbox');
+
 		return $data;
 	}
 	
@@ -276,17 +281,17 @@ class mod_howtos extends module {
 		$data = $this->common_edit_prep_data($row);
 		
 		empty($row['ru_website'])
-			? $data['website'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None' border='0' />"
-			: $data['website'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_website']}' border='0' />";
+			? $data['website'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None' border='0'>"
+			: $data['website'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_website']}'>";
 			
 		empty($row['ru_weburl'])
-			? $data['weburl'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None' border='0' />"
-			: $data['weburl'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_weburl']}' border='0' />";
+			? $data['weburl'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None' border='0'>"
+			: $data['weburl'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_weburl']}'>";
 		
 		$uurl = $STD->encode_url($_SERVER['PHP_SELF'], "act=ucp&param=02&u={$row['uid']}");
 		empty($row['ru_username'])
-			? $data['usericon'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='No User Associated' border='0' />"
-			: $data['usericon'] = "<a href='$uurl'><img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='Click to view user' border='0' /></a>";
+			? $data['usericon'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='No User Associated' border='0'>"
+			: $data['usericon'] = "<a href='$uurl'><img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='Click to view user'></a>";
 
 	//	($STD->user['acp_users'] && !empty($row['ru_username']))
 	//		? $data['usericon']['v'] = 'Click to View User'
@@ -329,7 +334,7 @@ class mod_howtos extends module {
 			
 			for ($x=0; $x<sizeof($data['compat_icons']); $x++) {
 				$src = "{$STD->tags['root_path']}/template/modules/{$data['type']}/{$data['compat_icons'][$x]}.gif";
-				$data['compat_icons'][$x] = "<img src=\"$src\" alt=\"{$data['compat_icons'][$x]}\" title=\"{$compat_names[$x]}\" /> ";
+				$data['compat_icons'][$x] = "<img src=\"$src\" alt=\"{$data['compat_icons'][$x]}\" title=\"{$compat_names[$x]}\"> ";
 			}
 		}
 		
@@ -351,8 +356,8 @@ class mod_howtos extends module {
 		$data['file_url'] = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=02&c={$IN['c']}&id={$data['rid']}");
 		$data['dl_url'] = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=03&c={$IN['c']}&id={$data['rid']}");
 		
-		$page_icon = "<img src=\"{$STD->tags['image_path']}/viewpagevw.gif\" border=\"0\" alt=\"[Page]\" style=\"display:inline; vertical-align:middle\" title=\"View Submission's Page\" />";
-		$dl_icon = "<img src=\"{$STD->tags['image_path']}/viewpagedn.gif\" border=\"0\" alt=\"[DL]\" style=\"display:inline; vertical-align:middle\" title=\"Download Submission\" />";
+		$page_icon = "<img src=\"{$STD->tags['global_image_path']}/viewpagevw.gif\" border=\"0\" alt=\"[Page]\" style=\"display:inline; vertical-align:middle\" title=\"View Submission's Page\">";
+		$dl_icon = "<img src=\"{$STD->tags['global_image_path']}/viewpagedn.gif\" border=\"0\" alt=\"[DL]\" style=\"display:inline; vertical-align:middle\" title=\"Download Submission\">";
 		
 		if (empty ($session->data['rr']) ) $session->data['rr'] = array();
 		$rr = empty ($session->data['rr'][$data['rid']]) ? 0 : $session->data['rr'][$data['rid']];
@@ -361,7 +366,7 @@ class mod_howtos extends module {
 			$row['comment_date'] > $rr)
 		{
 			$c_url = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=02&c={$IN['c']}&id={$data['rid']}&st=new");
-			$data['new_comments'] = "<a href=\"$c_url\"><img src=\"{$STD->tags['image_path']}/newcomment.gif\" border=\"0\" alt=\"[NEW]\" style=\"display:inline; vertical-align:middle\" title=\"Goto last unread comment\" /></a>";
+			$data['new_comments'] = "<a href=\"$c_url\"><img src=\"{$STD->tags['global_image_path']}/newcomment.gif\" border=\"0\" alt=\"[NEW]\" style=\"display:inline; vertical-align:middle\" title=\"Goto last unread comment\"></a>";
 		} else {
 			$data['new_comments'] = '';
 		}
@@ -400,17 +405,17 @@ class mod_howtos extends module {
 		$dblist = $this->get_version_history($IN['id']);
 		$rows_returned = $DB->get_num_rows();
 		if ($rows_returned == 0)
-			$data['version_history'] = "<tr><td colspan='2' align='center'>No History</td></tr>";
+			$data['version_history'] = "<tr><td colspan='2' style='text-align:center'>No History</td></tr>";
 
 		for ($x=0; $x<min(2,$rows_returned); $x++) {
 			$row = $DB->fetch_row($dblist);
 			$vdate = $STD->make_date_short($row['date']);
-			$data['version_history'] .= "<tr><td width='25%' valign='top'><b>$vdate&nbsp;</b></td>
-										   <td width='75%' valign='top'>{$row['change']}</td></tr>";
+			$data['version_history'] .= "<tr><td style='width:25%;'><b>$vdate&nbsp;</b></td>
+										   <td style='width:75%;'>{$row['change']}</td></tr>";
 		}
 		
 		if ($rows_returned > 2)	
-			$data['version_history'] .= "<tr><td colspan='2' align='center'><br /><a href='javascript:version_history()'>
+			$data['version_history'] .= "<tr><td colspan='2' style='text-align:center;'><br><a href='javascript:version_history()'>
 										 View Complete History</a></td></tr>";
 		
 		return $data;
@@ -437,6 +442,7 @@ class mod_howtos extends module {
 		$RES->data['description'] = $IN['description'];
 		
 		$auxdata['target_app'] = $IN['cat1'];
+		$auxdata['cat_franchise'] = $IN['cat2'];
 		
 		return array($RES, $auxdata, $ORIG);
 	}
@@ -455,7 +461,7 @@ class mod_howtos extends module {
 
 		$RES->insert();
 		
-		$values = array($auxdata['target_app']);
+		$values = array($auxdata['target_app'], $auxdata['cat_franchise']);
 		$this->add_filters($RES->data['rid'], $values);
 		
 		$RES->data['catwords'] = $this->make_catwords( $RES->data['rid'] );
@@ -497,7 +503,7 @@ class mod_howtos extends module {
 		// Add Filters
 		$this->clear_filters($ghost->data['rid']);
 		
-		$values = array($auxdata['target_app']);
+		$values = array($auxdata['target_app'], $auxdata['cat_franchise']);
 		$this->add_filters($ghost->data['rid'], $values);
 		
 		$ghost->data['catwords'] = $this->make_catwords( $ghost->data['rid'] );
@@ -536,7 +542,7 @@ class mod_howtos extends module {
 		// Add Filters
 		$this->clear_filters($IN['rid']);
 		
-		$values = array($auxdata['target_app']);
+		$values = array($auxdata['target_app'], $auxdata['cat_franchise']);
 		$this->add_filters($IN['rid'], $values);
 		
 		// Keywords
