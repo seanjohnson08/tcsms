@@ -20,23 +20,23 @@ class mod_games extends module {
 		
 		$this->file_restrictions = array(
 			'file'	=> array(
-				'mime'	=> array('application/zip','application/x-zip-compressed','application/x-zip'),
-				'ext'	=> array('ZIP'),
-				'size'	=> array(0, 1024*1024*50, '0B', '50MB'),
+				'mime'	=> array('application/zip','application/x-zip-compressed','application/x-zip','application/x-rar-compressed', 'application/octet-stream'),
+				'ext'	=> array('ZIP','RAR'),
+				'size'	=> array(0, 1024*1024*100, '0B', '200MB'),
 			),
 			'thumbnail'	=> array(
-				'mime'	=>array('image/gif','image/png','image/x-png','image/x-gif'),
+				'mime'	=> array('image/gif','image/png','image/x-png','image/x-gif'),
 				'ext'	=> array('PNG','GIF'),
-				'size'	=> array(0,1024*30, '0B', '30KB'),
+				'size'	=> array(0, 1024*100, '0B', '100KB'),
 				'width'	=> array(100, 100),
 				'height'=> array(100, 100),
 			),
 			'preview'	=> array(
 				'mime'	=> array('image/gif','image/png','image/x-png','image/x-gif'),
 				'ext'	=> array('PNG','GIF'),
-				'size'	=> array(0, 1024*200, '0B', '200KB'),
-				'width'	=> array(100, 320),
-				'height'=> array(100, 240),
+				'size'	=> array(0, 1024*1024*2, '0B', '2MB'),
+				'width'	=> array(100, 1920),
+				'height'=> array(100, 1080),
 			),);
 	}
 	
@@ -51,20 +51,22 @@ class mod_games extends module {
 		
 		$exdata['e.views']		= (!isset($resdata['views']))		? 0		: $resdata['views'];
 		$exdata['e.downloads']	= (!isset($resdata['downloads']))	? 0		: $resdata['downloads'];
+		$exdata['e.plays']	= (!isset($resdata['plays']))	? 0		: $resdata['plays'];
 		$exdata['e.file']		= (!isset($resdata['file']))		? ''	: $resdata['file'];
+		$exdata['e.file_html5']		= (!isset($resdata['file_html5']))		? ''	: $resdata['file_html5'];
 		$exdata['e.preview']	= (!isset($resdata['preview']))		? ''	: $resdata['preview'];
 		$exdata['e.thumbnail']	= (!isset($resdata['thumbnail']))	? ''	: $resdata['thumbnail'];
 		$exdata['e.file_mime']	= (!isset($resdata['file_mime']))	? ''	: $resdata['file_mime'];
 		$exdata['e.num_revs']	= (!isset($resdata['num_revs']))	? 0		: $resdata['num_revs'];
 		$exdata['e.rev_score']	= (!isset($resdata['rev_score']))	? 0		: $resdata['rev_score'];
-		
+
 		return $exdata;
 	}
 	
 	function extra_order () {
-		
-		$order_names = array('n' => 'Downloads', 'v' => 'Views', 's' => 'Score');
-		$order_list = array('n' => 'e.downloads', 'v' => 'e.views', 's' => 'e.rev_score / e.num_revs');
+		// This does not include plays yet
+		$order_names = array('n' => 'Downloads', 'v' => 'Views', 's' => 'Score', 'o' => 'Overlooked', 'p' => 'Popular', 'b' => 'Best');
+		$order_list = array('n' => 'e.downloads', 'v' => 'e.views', 's' => 'e.rev_score / e.num_revs', 'o' => '-(r.created-1000000000)/1000000000 - (e.downloads + e.views)/15000 - e.num_revs - r.comments + (CASE WHEN e.rev_score = 0 THEN 5.5 ELSE e.rev_score / e.num_revs END)', 'p' => '(CASE WHEN e.rev_score = 0 THEN 5.5185 ELSE e.rev_score / e.num_revs END) + (e.downloads + e.views)/9000 + (r.created-1000000000)/1000000 + r.comments/100', 'b' => '(CASE WHEN e.rev_score = 0 THEN 5.5185 ELSE e.rev_score / e.num_revs + e.rev_score / 270 END) + (e.downloads + e.views)/60000 + (r.created-1000000000)/800000000 + r.comments/1000', 'y' => '(CASE WHEN e.rev_score = 0 THEN 5.5185 ELSE e.rev_score / e.num_revs + e.rev_score / 270 END) + (e.downloads + e.views)/40000 + r.comments/200');
 		
 		return array($order_names, $order_list);
 	}
@@ -156,8 +158,8 @@ class mod_games extends module {
 		global $IN, $STD;
 		
 		// Check for completed required fields
-		if (empty($IN['cat1']) || empty($IN['cat2']))
-			$this->error_save("You must chose a value for the genre and completion categories.", 'submit');
+		if (empty($IN['cat1']) || empty($IN['cat2']) || empty($IN['cat3']))
+			$this->error_save("You must chose a value for the genre, completion, and franchise categories.", 'submit');
 		
 		if (empty($IN['title']))
 			$this->error_save("You must provide a title.");
@@ -191,7 +193,7 @@ class mod_games extends module {
 		$this->common_data_check();
 		
 		if (empty($IN['reason']))
-			$STD->error("You must give a reason for this update.  This will appear in your submission's update box.  Your changes may not be accepted without a valid reason.");
+			$STD->error("You must give a reason for this update. This will appear in your submission's update box. Your changes may not be accepted without a valid reason.");
 		
 		// Advanced Checking
 		if (!empty($_FILES['file']['name']))
@@ -213,7 +215,7 @@ class mod_games extends module {
 			$STD->error("You must provide either a valid Creator/Username, or a Username Override, or both.");
 		
 		if (empty($IN['admincomment']) && empty($IN['omit_comment']) && !empty($IN['author']))
-			$STD->error("You did not choose to omit an admin comment.  Please go back and enter one.");
+			$STD->error("You did not choose to omit an admin comment. Please go back and enter one.");
 		
 		// Advanced Checking
 		if (!empty($_FILES['file']['name']))
@@ -228,7 +230,7 @@ class mod_games extends module {
 		if (!empty($IN['author'])) {
 			$USER = new user;
 			if (!$USER->getByName($IN['author']))
-				$STD->error("Invalid Creator/Username entered.  Leave blank to not associate a registered user.");
+				$STD->error("Invalid Creator/Username entered. Leave blank to not associate a registered user.");
 		}
 	}
 	
@@ -237,7 +239,7 @@ class mod_games extends module {
 	//-------------------------------------------------------------------------------------------------
 	
 	function common_prep_data (&$row) {
-		global $IN, $STD;
+		global $IN, $STD, $DB, $CFG;
 		
 		$data['rid'] = $row['rid'];
 		$data['type'] = $row['type'];
@@ -249,6 +251,7 @@ class mod_games extends module {
 		$data['weburl_override'] = $row['weburl_override'];
 		$data['views'] = $row['views'];
 		$data['downloads'] = $row['downloads'];
+		$data['plays'] = $row['plays'];
 		$data['update_reason'] = $row['update_reason'];
 		$data['comments'] = $row['comments'];
 
@@ -262,19 +265,88 @@ class mod_games extends module {
 		$data['thumbnail'] = $this->get_thumbnail($row);
 		$data['preview'] = $this->get_image($row, 'preview');
 		$data['file'] = "file/{$IN['c']}/{$row['file']}";
+		$data['file_html5'] = "{$row['file_html5']}";
+		
+		//NEW AVERAGE SCORE SYSTEM (written by Hypernova)
+		
+		//HOLD ON!!!!!!!!!!!!!!
+		//This code has some major flaws.
+		//It's very resource intentsive and it slows down page loading times significantly
+		//In addition game ordering completely ignores these scores.
+		//Don't use this method of calculating average scores, instead recalculate scores manually once a while.
+		// - Mors
+		/*
+
+		//query to get all reviews (score only) for this game
+		//$DB->query('SELECT score FROM tsms_res_reviews '.'WHERE gid = '.$row['rid']); //Old code - reviews in queue will also be counted
+
+		$DB->query('SELECT a.score as score FROM tsms_res_reviews a, tsms_resources b '.
+		'WHERE (a.gid = '.$row['rid'].') and (a.eid = b.eid) and (b.type = 3) and (b.accept_date > 0)'); //reviews in queue will not be counted
+
+		//get the number of reviews
+		$count = 0;
+		$count = $DB->get_num_rows();
+		$total_score = array();
+		
+		//get all of the scores
+		while ($rrow = $DB->fetch_row())
+		{
+			array_push($total_score, $rrow);
+		}
+		
+		//calculate the average score if there's 1 or more reviews
+		$sum_score = 0;
+		if ($count > 0)
+		{
+			for ($ii = 0; $ii < $count; $ii ++)
+			{
+				$sum_score += intval($total_score[$ii]['score']);
+			}
+			$ascore = round(($sum_score/$count)*10)/10;
+			$data['average_score'] = $ascore . " / 10";
+		}
+		
+		//Return __ if there's no reviews
+		else
+		{
+			
+			$data['average_score'] = '__';
+		}*/
+		
+		//UPDATE ALL GAMES WITH MYSQL
+		//establish Alt MySQL connection
+		/*$altg_connection = mysqli_connect($CFG['db_host'],$CFG['db_user'],$CFG['db_pass'],$CFG['db_db']);
+			
+		//throw an error if connection failed
+		if ($altg_connection->connect_errno)
+		{
+			$STD->error("CRITICAL ERROR: Failed to connect to MySQL: (" . $alt_connection->connect_errno . ") " . $current_connection->connect_error);
+		}
+		mysqli_multi_query($altg_connection,'UPDATE tsms_res_games a '.
+					'INNER JOIN tsms_resources b '.
+					'ON (b.rid = '.$row['rid'].') and (a.eid = b.eid) '.
+					'SET a.num_revs = '.$count.', a.rev_score = '.$sum_score);
+		//shut down MySQL
+			mysqli_close($altg_connection);*/
+			
+			//Disabled this since it uses too much resources
+
+		
+		//OLD OUTDATED REVIEW SYSTEM
 		$data['average_score'] = empty($row['num_revs'])
 			? '__' 
 			: round($row['rev_score'] / $row['num_revs'], 1) . ' / 10';
 		
 		$module = $STD->modules->get_module($data['type']);
 		
-		$data['type_name'] = $module['full_name'];
+		if (!empty($module['full_name'])) // 4/9/2025 test fix
+			$data['type_name'] = $module['full_name'];
 		
 		return $data;
 	}
 	
 	//-------------------------------------------------------------------------------------------------
-	// Data Display Prep Functions :: Editing Subset
+	// Data Display Prep Functions - Editing Subset
 	//-------------------------------------------------------------------------------------------------
 	
 	function common_edit_prep_data (&$row) {
@@ -305,13 +377,16 @@ class mod_games extends module {
 			$err = $session->data['err_save'];
 			$selected = array_merge($selected, $err['cat1']);
 			$selected = array_merge($selected, $err['cat2']);
+			$selected = array_merge($selected, $err['cat3']);
 		}
 		
 		$data['cat1'] = $this->make_catset('COMPLETION', $access, $selected);
 		$data['cat2'] = $this->make_catset('GAME_TYPE', $access, $selected);
+		$data['cat3'] = $this->make_catset('FRANCHISE', $access, $selected);
 		
 		$data['cat1'] = $STD->make_select_box('cat1', $data['cat1']['value'], $data['cat1']['name'], $data['cat1']['sel'], 'selectbox');
 		$data['cat2'] = $STD->make_select_box('cat2', $data['cat2']['value'], $data['cat2']['name'], $data['cat2']['sel'], 'selectbox');
+		$data['cat3'] = $STD->make_select_box('cat3', $data['cat3']['value'], $data['cat3']['name'], $data['cat3']['sel'], 'selectbox');
 		
 		return $data;
 	}
@@ -348,7 +423,7 @@ class mod_games extends module {
 		if (preg_match($STD->get_regex('nat_delim'), $row['author_override'])) {
 			$add_authors = preg_split($STD->get_regex('nat_delim'), $row['author_override']);
 			array_shift($add_authors);
-			$data['author_override'] = @join(', ', $add_authors);
+			$data['author_override'] = join(', ', $add_authors);
 		}
 
 		return $data;
@@ -360,17 +435,17 @@ class mod_games extends module {
 		$data = $this->common_edit_prep_data($row);
 		
 		empty($row['ru_website'])
-			? $data['website'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None' border='0' />"
-			: $data['website'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_website']}' border='0' />";
+			? $data['website'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None'>"
+			: $data['website'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_website']}'>";
 			
 		empty($row['ru_weburl'])
-			? $data['weburl'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None' border='0' />"
-			: $data['weburl'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_weburl']}' border='0' />";
+			? $data['weburl'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='User Website: None'>"
+			: $data['weburl'] = "<img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='User Website: {$row['ru_weburl']}'>";
 		
 		$uurl = $STD->encode_url($_SERVER['PHP_SELF'], "act=ucp&param=02&u={$row['uid']}");
 		empty($row['ru_username'])
-			? $data['usericon'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='No User Associated' border='0' />"
-			: $data['usericon'] = "<a href='$uurl'><img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='Click to view user' border='0' /></a>";
+			? $data['usericon'] = "<img src='{$STD->tags['image_path']}/not_visible.gif' alt='[X]' title='No User Associated'>"
+			: $data['usericon'] = "<a href='$uurl'><img src='{$STD->tags['image_path']}/visible.gif' alt='[O]' title='Click to view user'></a>";
 
 	//	($STD->user['acp_users'] && !empty($row['ru_username']))
 	//		? $data['usericon']['v'] = 'Click to View User'
@@ -396,6 +471,7 @@ class mod_games extends module {
 		$data['title'] = $STD->safe_display($data['title']);
 		$data['completion'] = '';
 		$data['genre'] = '';
+		$data['franchise'] = '';
 		
 		if (!empty($IN['id'])) {
 			$DB->query("SELECT l.fid,l.name,g.keyword,m.fid as fhit FROM {$CFG['db_pfx']}_filter_list l ".
@@ -409,12 +485,14 @@ class mod_games extends module {
 					$data['completion'] = $arow['name'];
 				if ($arow['fhit'] > 0 && $arow['keyword'] == 'GAME_TYPE')
 					$data['genre'] = $arow['name'];
+				if ($arow['fhit'] > 0 && $arow['keyword'] == 'FRANCHISE')
+					$data['franchise'] = $arow['name'];
 			}
 		}
 		
 		return $data;
 	}
-	
+
 	function resdb_prep_data (&$row) {
 		global $IN, $STD, $session;
 		
@@ -427,9 +505,11 @@ class mod_games extends module {
 
 		$data['file_url'] = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=02&c={$IN['c']}&id={$data['rid']}");
 		$data['dl_url'] = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=03&c={$IN['c']}&id={$data['rid']}");
+		$data['play_url'] = $STD->encode_url("html5/", "{$data['file_html5']}");
 		
-		$page_icon = "<img src=\"{$STD->tags['image_path']}/viewpagevw.gif\" border=\"0\" alt=\"[Page]\" style=\"display:inline; vertical-align:middle\" title=\"View Submission's Page\" />";
-		$dl_icon = "<img src=\"{$STD->tags['image_path']}/viewpagedn.gif\" border=\"0\" alt=\"[DL]\" style=\"display:inline; vertical-align:middle\" title=\"Download Submission\" />";
+		$page_icon = "<img src=\"{$STD->tags['global_image_path']}/viewpagevw.gif\" alt=\"[Page]\" style=\"display:inline; vertical-align:middle\" title=\"View Submission's Page\">";
+		$dl_icon = "<img src=\"{$STD->tags['global_image_path']}/viewpagedn.gif\" alt=\"[DL]\" style=\"display:inline; vertical-align:middle\" title=\"Download Submission\">";
+		$play_icon = "<img src=\"{$STD->tags['global_image_path']}/orange_arrow.gif\" alt=\"[Play]\" style=\"display:inline; vertical-align:middle\" title=\"Play Game\">";
 		
 		if (empty ($session->data['rr']) ) $session->data['rr'] = array();
 		$rr = empty ($session->data['rr'][$data['rid']]) ? 0 : $session->data['rr'][$data['rid']];
@@ -438,13 +518,14 @@ class mod_games extends module {
 			$row['comment_date'] > $rr)
 		{
 			$c_url = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=02&c={$IN['c']}&id={$data['rid']}&st=new");
-			$data['new_comments'] = "<a href=\"$c_url\"><img src=\"{$STD->tags['image_path']}/newcomment.gif\" border=\"0\" alt=\"[NEW]\" style=\"display:inline; vertical-align:middle\" title=\"Goto last unread comment\" /></a>";
+			$data['new_comments'] = "<a href=\"$c_url\"><img src=\"{$STD->tags['global_image_path']}/newcomment.gif\" alt=\"[NEW]\" style=\"display:inline; vertical-align:middle\" title=\"Goto last unread comment\" /></a>";
 		} else {
 			$data['new_comments'] = '';
 		}
 		
 		$data['page_icon'] = "<a href=\"{$data['file_url']}\">$page_icon</a>";
 		$data['dl_icon'] = "<a href=\"{$data['dl_url']}\">$dl_icon</a>";
+		$data['play_icon'] = "<a href=\"{$data['play_url']}\">$play_icon</a>";
 		
 		(!$row['updated'])
 			? $data['updated'] = ''
@@ -472,10 +553,16 @@ class mod_games extends module {
 		$dl_url = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=03&c={$IN['c']}&id={$IN['id']}");
 		($data['filesize'] == 'File Unavailable')
 			? $data['download_text'] = 'Download Unavailable'
-			: $data['download_text'] = "<a href='$dl_url'>View / Download</a>";
+			: $data['download_text'] = "<a href='$dl_url'>Download!</a>";
+		
+		// 2/29/2024 Additions
+		$play_url = "html5/" . "{$data['file_html5']}";
+		if (strlen($data['file_html5']) < 7)
+			$data['play_text'] = '';
+		else
+			$data['play_text'] = "<a href='$play_url'>Play in Browser</a>";
 		
 		// Version History
-		
 		$data['version_history'] = '';
 		$dblist = $this->get_version_history($IN['id']);
 		$rows_returned = $DB->get_num_rows();
@@ -485,14 +572,13 @@ class mod_games extends module {
 		for ($x=0; $x<min(2,$rows_returned); $x++) {
 			$row = $DB->fetch_row($dblist);
 			$vdate = $STD->make_date_short($row['date']);
-			$data['version_history'] .= "<tr><td width='25%' valign='top'><b>$vdate&nbsp;</b></td>
-										   <td width='75%' valign='top'>{$row['change']}</td></tr>";
+			$data['version_history'] .= "<tr><td style='width:25%;'><b>$vdate&nbsp;</b></td>
+										   <td style='width:75%;'>{$row['change']}</td></tr>";
 		}
 		
 		if ($rows_returned > 2)	
-			$data['version_history'] .= "<tr><td colspan='2' align='center'><br /><a href='javascript:version_history()'>
+			$data['version_history'] .= "<tr><td colspan='2' align='center'><br><a href='javascript:version_history()'>
 										 View Complete History</a></td></tr>";
-		
 		
 		// Game Reviews
 		if ($STD->modules->bound_child($res['type'], 'res_reviews')) {
@@ -544,6 +630,7 @@ class mod_games extends module {
 		
 		$auxdata['cat_completion'] = $IN['cat1'];
 		$auxdata['cat_game_type'] = $IN['cat2'];	
+		$auxdata['cat_franchise'] = $IN['cat3'];
 		
 		return array($RES, $auxdata, $ORIG);
 	}
@@ -580,7 +667,7 @@ class mod_games extends module {
 		
 		$RES->insert();
 		
-		$values = array($auxdata['cat_completion'], $auxdata['cat_game_type']);
+		$values = array($auxdata['cat_completion'], $auxdata['cat_game_type'], $auxdata['cat_franchise']);
 		$this->add_filters($RES->data['rid'], $values);
 		
 		return $RES;
@@ -594,7 +681,7 @@ class mod_games extends module {
 		$RES->data['author_override'] = '';
 		if (!empty($IN['author_override'])) {
 			$add_authors = preg_split($STD->get_regex('nat_delim'), $IN['author_override']);
-			$add_authors = @join(', ', $add_authors);
+			$add_authors = join(', ', $add_authors);
 			$RES->data['author_override'] = "{$STD->user['username']}, $add_authors";
 		}
 		
@@ -622,7 +709,7 @@ class mod_games extends module {
 		// Add Filters
 		$this->clear_filters($ghost->data['rid']);
 		
-		$values = array($auxdata['cat_completion'], $auxdata['cat_game_type']);
+		$values = array($auxdata['cat_completion'], $auxdata['cat_game_type'], $auxdata['cat_franchise']);
 		$this->add_filters($ghost->data['rid'], $values);
 		
 		return $RES;
@@ -682,7 +769,7 @@ class mod_games extends module {
 		// Add Filters
 		$this->clear_filters($IN['rid']);
 		
-		$values = array($auxdata['cat_completion'], $auxdata['cat_game_type']);
+		$values = array($auxdata['cat_completion'], $auxdata['cat_game_type'], $auxdata['cat_franchise']);
 		$this->add_filters($IN['rid'], $values);
 		
 		return $RES;
