@@ -14,13 +14,6 @@ class resource extends table_frame {
 	
 	var $module = null;
 	
-	function resource () {
-		global $IN, $STD;
-		
-		if (!empty($IN['c']))
-			$this->module = $STD->modules->get_module($IN['c']);
-	}
-	
 	function update_module ($mid) {
 		global $DB, $CFG, $STD;
 		
@@ -29,7 +22,7 @@ class resource extends table_frame {
 
 		$mrow = $STD->modules->get_module($mid);
 		if (!$mrow)
-			$STD->error("Attempt to call a non-existant module id: '{$mid}'.");
+			$STD->error("Attempt to call a nonexistent module id: '{$mid}'.");
 		
 		$this->module = $mrow;
 	}		
@@ -214,7 +207,7 @@ class resource extends table_frame {
 		
 		if (in_array('extention', $this->use)) {
 			$select .= ",e.*";
-			$from .= "LEFT OUTER JOIN {$CFG['db_pfx']}_{$this->module['table_name']} e ON (r.eid = e.eid) ";
+			$from .= "LEFT OUTER JOIN {$CFG['db_pfx']}_{$this->module['table_name']} e ON (r.eid = e.eid)"; // 3/24/25 VinnyNote: Bad code
 		}
 		
 		if (in_array('r_user', $this->use)) {
@@ -236,7 +229,8 @@ class resource extends table_frame {
 		
 		if (in_array('filter', $this->use)) {
 			reset($this->use_val['filter']);
-			while (list($k,$v) = each($this->use_val['filter'])) {
+			//while (list($k,$v) = each($this->use_val['filter'])) {
+			foreach ( $this->use_val['filter'] as $k => $v ) {
 				if ($v > 0) {
 					$from .= "LEFT OUTER JOIN {$CFG['db_pfx']}_filter_multi fm{$k} ON (fm{$k}.rid = r.rid) ";
 					$this->query_condition("fm{$k}.fid = '{$v}'");
@@ -324,8 +318,9 @@ class resource extends table_frame {
 		
 		//$mod = new $this->module['class_name'];	
 		$mod = $STD->modules->new_module($this->module['mid']);	
-		while (list($k,$v) = each ($mod->file_restrictions)) {
-			@unlink("$k/{$this->data['type']}/{$this->data[$k]}");
+		//while (list($k,$v) = each ($mod->file_restrictions)) {
+		foreach ( $mod->file_restrictions as $k => $v ) {
+			unlink("$k/{$this->data['type']}/{$this->data[$k]}");
 		}
 		
 		$where = $DB->format_db_where_string(array('rid'	=>	$this->data['rid']));
@@ -351,7 +346,8 @@ class resource extends table_frame {
 		$ghost->_copy($this);
 		
 		reset($fields);
-		while (list($k,$v) = each($fields))
+		//while (list($k,$v) = each($fields))
+		foreach ( $fields as $k => $v )
 			$ghost->data[$k] = $v;
 		
 		$ghost->data['eid'] = 0;
@@ -382,7 +378,8 @@ class resource extends table_frame {
 		unset($fields['queue_code']);
 		
 		reset($fields);
-		while (list($k,$v) = each($fields))
+		//while (list($k,$v) = each($fields))
+		foreach ( $fields as $k => $v )
 			$ghost->data[$k] = $v;
 		
 		$ghost->update();
@@ -404,7 +401,8 @@ class resource extends table_frame {
 		$this->update_module($this->data['type']);
 		
 		$mod = $STD->modules->new_module($this->module['mid']);
-		while (list($k,$v) = each ($mod->file_restrictions)) {
+		//while (list($k,$v) = each ($mod->file_restrictions)) {
+		foreach ( $mod->file_restrictions as $k => $v ) {
 			if ($this->data[$k] == $ghost->data[$x])
 				unset($ghost->data[$k]);
 		}
@@ -440,7 +438,8 @@ class resource extends table_frame {
 		$old_files = array();
 		
 		$mod = $STD->modules->new_module($this->module['mid']);
-		while (list($k,$v) = each($mod->file_restrictions)) {
+		//while (list($k,$v) = each($mod->file_restrictions)) {
+		foreach ( $mod->file_restrictions as $k => $v ) {
 			$old_files[$k] = $this->data[$k];
 		}
 		
@@ -455,7 +454,8 @@ class resource extends table_frame {
 		$upd = $DB->format_db_update_values(array('rid'		=> $this->data['rid']));
 		$DB->query("UPDATE {$CFG['db_pfx']}_filter_multi SET $upd WHERE $where");
 		
-		while (list($k,$v) = each ($old_files)) {
+		//while (list($k,$v) = each ($old_files)) {
+		foreach ( $old_files as $k => $v ) {
 			($this->data[$k] == $v)
 				? $ghost->data[$k] = ''
 				: $ghost->data[$k] = $v;
