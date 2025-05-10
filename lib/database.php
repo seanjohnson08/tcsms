@@ -45,7 +45,7 @@ class Database {
 		
 		reset($this->cache);
 		//while (list(,$val) = each($this->cache))
-		foreach ( $this->cache as $val ) {
+		foreach ( $this->cache as $val )
 			mysqli_free_result($rid);
 		
 		mysqli_close($this->connection);
@@ -71,7 +71,7 @@ class Database {
 		$preped = array();
 		reset($args);
 		//while (list($key,$val) = each($args))
-		foreach ( $args as $key => $val ) {
+		foreach ( $args as $key => $val )
 			$preped[$key] = $this->db->quote($val);
 		return $preped;
 	}
