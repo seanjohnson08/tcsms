@@ -5,7 +5,7 @@ class template_adm_ucp {
 function message ($message) {
 global $STD;
 return <<<HTML
-<br />
+<br>
 {$message}
 HTML;
 }
@@ -14,7 +14,7 @@ function ucp_list_header ($tab_index, $tab_url, $olinks) {
 global $STD;
 return <<<HTML
 <div align="center">
-<br />
+<br>
 <div style="width: 90%">
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 <tr>
@@ -53,8 +53,9 @@ return <<<HTML
 <div class="rowfield">
 <table class="rowtable" cellspacing="1">
 <tr>
+  <td class="rowtitle" width="10%"><a href="{$olinks['i']['url']}">UID</a> {$olinks['i']['img']}</td>
   <td class="rowtitle" width="60%"><a href="{$olinks['u']['url']}">Username</a> {$olinks['u']['img']}</td>
-  <td class="rowtitle" width="40%"><a href="{$olinks['g']['url']}">Group</a> {$olinks['g']['img']}</td>
+  <td class="rowtitle" width="30%"><a href="{$olinks['g']['url']}">Group</a> {$olinks['g']['img']}</td>
 </tr>
 HTML;
 }
@@ -65,7 +66,7 @@ return <<<HTML
 </table>
 </div>
 <div style="width: 90%; text-align: left">{$pages}</div>
-<br />
+<br>
 </div>
 HTML;
 }
@@ -74,6 +75,7 @@ function ucp_list_row ($user) {
 global $STD;
 return <<<HTML
 <tr>
+  <td class="rowcell2">{$user['uid']}</td>
   <td class="rowcell2">
     <a href="{$STD->tags['root_url']}act=ucp&amp;param=02&amp;u={$user['uid']}">{$user['username']}</a></td>
   <td class="rowcell2">{$user['group_name']}</td>
@@ -94,22 +96,22 @@ function ucp_find_users ( ) {
 global $STD;
 return <<<HTML
 <form method="post" action="{$STD->tags['root_url']}act=ucp&amp;param=15">
-<br />
+<br>
 <div class="rowfield" style="margin-left:auto; margin-right:auto">
-<div class="rowtitle">Quick Search</div>
+<div class="rowtitle">Find by Username</div>
 <table class="rowtable" cellspacing="1">
 <tr>
-  <td width="40%" class="rowcell3">Username contains...</td>
-  <td width="60%" class="rowcell2"><input type="text" name="username" size="40" class="textbox" /></td>
+  <td width="40%" class="rowcell3"><label for="username">Username contains...</label></td>
+  <td width="60%" class="rowcell2"><input type="text" id="username" name="username" size="40" class="textbox"></td>
 </tr>
 <tr>
   <td colspan="2" class="rowcell4" style="text-align:center">
-    <input type="submit" value="Find Users" class="button" /></td>
+    <input type="submit" value="Find Users" class="button"></td>
 </tr>
 </table>
 </div>
 </form>
-<br />
+<br>
 HTML;
 }
 
@@ -117,22 +119,22 @@ function ucp_find_email ( ) {
 global $STD;
 return <<<HTML
 <form method="post" action="{$STD->tags['root_url']}act=ucp&amp;param=17">
-<br />
+<br>
 <div class="rowfield" style="margin-left:auto; margin-right:auto">
-<div class="rowtitle">Quick Search</div>
+<div class="rowtitle">Find by Email</div>
 <table class="rowtable" cellspacing="1">
 <tr>
-  <td width="40%" class="rowcell3">Email contains...</td>
-  <td width="60%" class="rowcell2"><input type="text" name="email" size="40" class="textbox" /></td>
+  <td width="40%" class="rowcell3"><label for="email">Email contains...</label></td>
+  <td width="60%" class="rowcell2"><input type="text" id="email" name="email" size="40" class="textbox"></td>
 </tr>
 <tr>
   <td colspan="2" class="rowcell4" style="text-align:center">
-    <input type="submit" value="Find Users" class="button" /></td>
+    <input type="submit" value="Find Users" class="button"></td>
 </tr>
 </table>
 </div>
 </form>
-<br />
+<br>
 HTML;
 }
 
@@ -140,22 +142,22 @@ function ucp_find_ip ( ) {
 global $STD;
 return <<<HTML
 <form method="post" action="{$STD->tags['root_url']}act=ucp&amp;param=19">
-<br />
+<br>
 <div class="rowfield" style="margin-left:auto; margin-right:auto">
-<div class="rowtitle">Quick Search</div>
+<div class="rowtitle">Find by IP</div>
 <table class="rowtable" cellspacing="1">
 <tr>
-  <td width="40%" class="rowcell3">IP address contains...</td>
-  <td width="60%" class="rowcell2"><input type="text" name="ip" size="40" class="textbox" /></td>
+  <td width="40%" class="rowcell3"><label for="ip">IP address contains...</label></td>
+  <td width="60%" class="rowcell2"><input type="text" id="ip" name="ip" size="40" class="textbox"></td>
 </tr>
 <tr>
   <td colspan="2" class="rowcell4" style="text-align:center">
-    <input type="submit" value="Find Users" class="button" /></td>
+    <input type="submit" value="Find Users" class="button"></td>
 </tr>
 </table>
 </div>
 </form>
-<br />
+<br>
 HTML;
 }
 
@@ -163,12 +165,13 @@ function ucp_find_list_header () {
 global $STD;
 return <<<HTML
 <div align="center">
-<br />
+<br>
 <div class="rowfield">
 <table class="rowtable" cellspacing="1">
 <tr>
+  <td class="rowtitle" width="10%">UID</td>
   <td class="rowtitle" width="60%">Username</td>
-  <td class="rowtitle" width="40%">Group</td>
+  <td class="rowtitle" width="30%">Group</td>
 </tr>
 HTML;
 }
@@ -199,10 +202,10 @@ return <<<HTML
 
 Use this page to modify the selected user.  To change the user's password, fill in the password boxes, leave them blank otherwise.
 <form method="post" action="{$STD->tags['root_url']}act=ucp&amp;param=03">
-<input type="hidden" name="uid" value="{$user['uid']}" />
-<input type="hidden" name="security_token" value="{$token}" />
+<input type="hidden" name="uid" value="{$user['uid']}">
+<input type="hidden" name="security_token" value="{$token}">
 <div align="center">
-<br />
+<br>
 <table border="0" cellspacing="0" cellpadding="1" width="90%">
 <tr>
   <td width="30%" class="title">User ID</td>
@@ -213,12 +216,12 @@ Use this page to modify the selected user.  To change the user's password, fill 
   <td width="70%" class="field">&nbsp;</td>
 </tr>
 <tr>
-  <td width="30%" class="title">Username</td>
-  <td width="70%" class="field"><input type="text" name="username" class="textbox" size="40" value="{$user['username']}" /></td>
+  <td width="30%" class="title"><label for="username">Username</label></td>
+  <td width="70%" class="field"><input type="text" id="username" name="username" class="textbox" size="40" value="{$user['username']}" /></td>
 </tr>
 <tr>
-  <td width="30%" class="title">Email</td>
-  <td width="70%" class="field"><input type="text" name="email" class="textbox" size="40" value="{$user['email']}" /></td>
+  <td width="30%" class="title"><label for="email">Email</label></td>
+  <td width="70%" class="field"><input type="text" id="email" name="email" class="textbox" size="40" value="{$user['email']}" /></td>
 </tr>
 <tr>
   <td width="30%" class="title">&nbsp;</td>
@@ -245,28 +248,28 @@ Use this page to modify the selected user.  To change the user's password, fill 
   <td width="70%" class="field">&nbsp;</td>
 </tr>
 <tr>
-  <td width="30%" class="title">New Password</td>
-  <td width="70%" class="field"><input type="password" name="password" class="textbox" size="40" value="" /></td>
+  <td width="30%" class="title"><label for="password">New Password (8 characters, at least 1 letter and 1 number)</label></td>
+  <td width="70%" class="field"><input type="password" id="password" name="password" class="textbox" size="40" value="" /></td>
 </tr>
 <tr>
-  <td width="30%" class="title">Retype Password</td>
-  <td width="70%" class="field"><input type="password" name="password2" class="textbox" size="40" value="" /></td>
+  <td width="30%" class="title"><label for="password2">Retype Password</label></td>
+  <td width="70%" class="field"><input type="password" id="password2" name="password2" class="textbox" size="40" value="" /></td>
 </tr>
 <tr>
   <td width="30%" class="title">&nbsp;</td>
   <td width="70%" class="field">&nbsp;</td>
 </tr>
 <tr>
-  <td width="30%" class="title">Website</td>
-  <td width="70%" class="field"><input type="text" name="website" class="textbox" size="40" value="{$user['website']}" /></td>
+  <td width="30%" class="title"><label for="website">Website</label></td>
+  <td width="70%" class="field"><input type="text" id="website" name="website" class="textbox" size="40" value="{$user['website']}" /></td>
 </tr>
 <tr>
-  <td width="30%" class="title">Website URL</td>
-  <td width="70%" class="field"><input type="text" name="weburl" class="textbox" size="40" value="{$user['weburl']}" /></td>
+  <td width="30%" class="title"><label for="weburl">Website URL</label></td>
+  <td width="70%" class="field"><input type="text" id="weburl" name="weburl" class="textbox" size="40" value="{$user['weburl']}" /></td>
 </tr>
 <tr>
-  <td width="30%" class="title">Personal Icon</td>
-  <td width="70%" class="field"><input type="text" name="icon" class="textbox" size="40" value="{$user['icon']}" /></td>
+  <td width="30%" class="title"><label for="icon">Personal Icon</label></td>
+  <td width="70%" class="field"><input type="text" id="icon" name="icon" class="textbox" size="40" value="{$user['icon']}" /></td>
 </tr>
 <tr>
   <td width="30%" class="title">Show Email</td>
@@ -309,7 +312,7 @@ function group_list_header ($olinks) {
 global $STD;
 return <<<HTML
 <div align="center">
-<br />
+<br>
 <div class="rowfield">
 <table class="rowtable" cellspacing="1">
 <tr>
@@ -326,7 +329,7 @@ return <<<HTML
 </table>
 </div>
 <div style="width: 90%; text-align: left">Pages: {$pages}</div>
-<br />
+<br>
 <form method="post" action="{$STD->tags['root_url']}act=ucp&amp;param=10">
 <table border="0" cellspacing="0" cellpadding="2" width="90%">
 <tr>
@@ -335,7 +338,7 @@ return <<<HTML
   </td>
 </tr>
 </table>
-<br />
+<br>
 </form>
 </div>
 HTML;
@@ -372,7 +375,7 @@ Use this page to modify the selected group.
 <form method="post" action="{$STD->tags['root_url']}act=ucp&amp;param=09">
 <input type="hidden" name="gid" value="{$group['gid']}" />
 <input type="hidden" name="security_token" value="{$token}" />
-<br />
+<br>
 <div class="rowfield" style="margin-left:auto; margin-right:auto">
 <div class="rowtitle">Group Settings</div>
 <table class="rowtable" cellspacing="1">
@@ -381,31 +384,31 @@ Use this page to modify the selected group.
   <td width="60%" class="rowcell2">{$group['gid']}</td>
 </tr>
 <tr>
-  <td class="rowcell3">Group Name</td>
-  <td class="rowcell2"><input type="text" name="group_name" class="textbox" size="40" value="{$group['group_name']}" /></td>
+  <td class="rowcell3"><label for="group_name">Group Name</label></td>
+  <td class="rowcell2"><input type="text" id="group_name" name="group_name" class="textbox" size="40" value="{$group['group_name']}" /></td>
 </tr>
 <tr>
-  <td class="rowcell3">Group Title</td>
-  <td class="rowcell2"><input type="text" name="group_title" class="textbox" size="40" value="{$group['group_title']}" /></td>
+  <td class="rowcell3"><label for="group_title">Group Title</label></td>
+  <td class="rowcell2"><input type="text" id="group_title" name="group_title" class="textbox" size="40" value="{$group['group_title']}" /></td>
 </tr>
 <tr>
-  <td class="rowcell3">Inbox Capacity</td>
-  <td class="rowcell2"><input type="text" name="msg_capacity" class="textbox" size="6" value="{$group['msg_capacity']}" /></td>
+  <td class="rowcell3"><label for="msg_capacity">Inbox Capacity</label></td>
+  <td class="rowcell2"><input type="text" id="msg_capacity" name="msg_capacity" class="textbox" size="6" value="{$group['msg_capacity']}" /></td>
 </tr>
 </table>
 <div class="rowtitle">Display Settings</div>
 <table class="rowtable" cellspacing="1">
 <tr>
-  <td width="40%" class="rowcell3">Name Prefix</td>
-  <td width="60%" class="rowcell2"><input type="text" name="name_prefix" class="textbox" size="60" value="{$group['name_prefix']}" /></td>
+  <td width="40%" class="rowcell3"><label for="name_prefix">Name Prefix</label></td>
+  <td width="60%" class="rowcell2"><input type="text" id="name_prefix" name="name_prefix" class="textbox" size="60" value="{$group['name_prefix']}" /></td>
 </tr>
 <tr>
-  <td class="rowcell3">Name Suffix</td>
-  <td class="rowcell2"><input type="text" name="name_suffix" class="textbox" size="60" value="{$group['name_suffix']}" /></td>
+  <td class="rowcell3"><label for="name_suffix">Name Suffix</label></td>
+  <td class="rowcell2"><input type="text" id="name_suffix" name="name_suffix" class="textbox" size="60" value="{$group['name_suffix']}" /></td>
 </tr>
 </table>
 </div>
-<br />
+<br>
 <div class="rowfield" style="margin-left:auto; margin-right:auto">
 <div class="rowtitle">General Permissions</div>
 <table class="rowtable" cellspacing="1">
@@ -447,7 +450,7 @@ Use this page to modify the selected group.
 </tr>
 </table>
 </div>
-<br />
+<br>
 <div class="rowfield" style="margin-left:auto; margin-right:auto">
 <div class="rowtitle">Elevated Permissions</div>
 <table class="rowtable" cellspacing="1">
@@ -484,12 +487,12 @@ Use this page to modify the selected group.
 </tr>
 </table>
 </div>
-<br />
+<br>
 <div style="text-align:center">
   <input type="submit" class="button" value="Update Group" /> 
   <input type="submit" name="drop_item" class="button" value="DROP Group" style="background-color: #FF6169; color: white" />
 </div>
-<br />
+<br>
 </form>
 HTML;
 }
@@ -502,7 +505,7 @@ Select a new group to merge existing users into
 <input type="hidden" name="gid" value="{$group['gid']}" />
 <input type="hidden" name="security_token" value="{$token}" />
 <div align="center">
-<br />
+<br>
 <table border="0" cellspacing="0" cellpadding="1" width="90%">
 <tr>
   <td width="30%" class="title">Group to Drop</td>
@@ -532,7 +535,7 @@ return <<<HTML
 You can setup IP banning (blacklisting) and user exceptions (whitelisting) on this page.  Blacklisting should only be used as a last resort.
 <form method="post" action="{$STD->tags['root_url']}act=ucp&amp;param=13">
 <input type="hidden" name="security_token" value="{$token}" />
-<br />
+<br>
 <div align="center">
 <table border="0" cellspacing="0" cellpadding="1" width="90%">
 <tr>
