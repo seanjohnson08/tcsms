@@ -6,7 +6,7 @@ function panel_preview_header() {
 global $STD;
 return <<<HTML
 <div align="center">
-<br />
+<br>
 <div class="rowfield" style="padding:1px">
 <div class="rowtitle" style="margin-bottom:1px">Panel Arrangement Preview</div>
 <div class="rowcell2" style="padding:16px">
@@ -73,7 +73,7 @@ function panel_list_header() {
 global $STD;
 return <<<HTML
 <div align="center">
-<br />
+<br>
 <div class="rowfield">
 <table class="rowtable" cellspacing="1">
 <tr>
@@ -114,7 +114,7 @@ function panel_man($options) {
 global $STD;
 return <<<HTML
 <div align="center">
-<br />
+<br>
 <div class="rowfield">
 <table class="rowtable" cellspacing="1">
 <tr>
@@ -131,7 +131,7 @@ return <<<HTML
 </table>
 </div>
 </div>
-<br />
+<br>
 HTML;
 }
 
