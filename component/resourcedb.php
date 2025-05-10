@@ -31,12 +31,18 @@ class component_resourcedb {
 			
 			$this->mod_html = $STD->template->useTemplate( $module['template'] );
 		}
+
+		// If the user hasn't changed their password yet then force them to do so to view games.
+		if ($STD->user['new_password'] != 1) {
+			header("Location: ".$_SERVER['PHP_SELF'].'?act=login&param=10');
+		}
 		
 		switch ($IN['param']) {
 			case 1: $this->show_list(); break;
 			case 2: $this->show_page(); break;
 			case 3: $this->do_download(); break;
 			case 4: $this->version_history(); break;
+			case 5: $this->show_top_games(); break;
 		}
 		
 		//$TPL->template = $this->output;
@@ -59,7 +65,8 @@ class component_resourcedb {
 		if (!empty($IN['filter']) && is_array($IN['filter'])) {
 			$nf = '';
 			reset($IN['filter']);
-			while (list($k,$v) = each($IN['filter'])) {
+			//while (list($k,$v) = each($IN['filter'])) {
+			foreach ( $IN['filter'] as $k => $v ) {
 				if ($v > 0)
 					$nf .= ",{$k}.{$v}";
 			}
@@ -100,7 +107,8 @@ class component_resourcedb {
 		elseif (!is_array($IN['filter'])) {
 			$filter = array();
 			$tfilter = explode(',', $IN['filter']);
-			while (list(,$v) = each($tfilter)) {
+			//while (list(,$v) = each($tfilter)) {
+			foreach ( $tfilter as $v ) {
 				$pair = explode(".", $v);
 				$filter[$pair[0]] = $pair[1];
 			}
@@ -129,7 +137,8 @@ class component_resourcedb {
 		ksort($groups);
 		
 		$boxes = '';
-		while (list($k,$v) = each($groups)) {
+		//while (list($k,$v) = each($groups)) {
+		foreach ( $groups as $k => $v ) {
 			$k = $v['gid'];
 			(!empty($filter[$k]))
 				? $selected = $filter[$k] : $selected = 0;
@@ -145,17 +154,16 @@ class component_resourcedb {
 		$filter_url = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=01&c={$IN['c']}&o={$IN['o']}");
 		
 		$this->output .= $STD->global_template->page_header($module_record['full_name']);
-		
+
 		$this->output .= $this->html->filter_row($boxes, $filter_url);
-		$this->output .= $this->html->start_rows();
 		
 		//------------------------------------------------
 		// Sort out filtering, ordering, etc
 		//------------------------------------------------
 
-		$order_names = array('t' => 'Title', 'a' => 'Author', 'd' => 'Date', 'u' => 'Updated', 'c' => 'Comments', 'cd' => 'Comment Date');
+		$order_names = array('t' => 'Title', /*'a' => 'Author',*/ 'd' => 'Date', /*'u' => 'Last Updated',*/ 'c' => 'Comments', 'cd' => 'Comment Date');
 		$order_list = array('t' => 'r.title', 'a' => "CONCAT(r.author_override,IFNULL(ru.username,''))",
-						    'd' => 'r.rid', 'u' => 'IF(r.updated>0,r.updated,r.rid)',
+						    'd' => 'r.created', 'u' => 'IF(r.update_accept_date>0,r.update_accept_date,r.created)', //OLD: 'd' => 'r.rid'; r.updated
 						    'c' => 'r.comments', 'cd' => 'IF(r.comment_date>0,r.comment_date,r.created)');
 		$order_default = array($CFG['default_order_by'], $CFG['default_order']);
 		
@@ -173,6 +181,13 @@ class component_resourcedb {
 		
 		$order = $STD->order_translate( $order_list, $order_default );
 	//	$order_links = $STD->order_links( $order_list, $order_url, $order_default );
+
+		$selbox1 = $STD->make_select_box('o1', array_keys($order_names), array_values($order_names), $order_default[0], 'selectbox');
+		$selbox2 = $STD->make_select_box('o2', array('a','d'), array('Ascending Order','Descending Order'), $order_default[1], 'selectbox');
+
+		$order_url = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=01&c={$IN['c']}&st={$IN['st']}&filter={$IN['filter']}");
+
+		$this->output .= $this->html->start_rows("$selbox1$selbox2", $order_url);
 
 		//------------------------------------------------
 		// Resource Rows
@@ -208,17 +223,99 @@ class component_resourcedb {
 		// Page Numbering and Ordering
 		//------------------------------------------------
 		
-		$order_url = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=01&c={$IN['c']}&st={$IN['st']}&filter={$IN['filter']}");
-		$order_p = @join(',', $order_default);
+		$order_p = join(',', $order_default);
 		
 		$rcnt = $RES->countByType($IN['c']);
 		$pages = $STD->paginate($IN['st'], $rcnt['cnt'], $STD->get_page_prefs(), "act=resdb&param=01&c={$IN['c']}&o=$order_p&filter={$IN['filter']}");
-
-		$selbox1 = $STD->make_select_box('o1', array_keys($order_names), array_values($order_names), $order_default[0], 'selectbox');
-		$selbox2 = $STD->make_select_box('o2', array('a','d'), array('Ascending Order','Descending Order'), $order_default[1], 'selectbox');
 		
 		$this->output .= $this->html->end_rows();
 		$this->output .= $this->html->row_footer($pages, "$selbox1$selbox2", $order_url);
+		
+		$this->output .= $STD->global_template->page_footer();
+	}
+
+
+	//Show Top 10 games
+	function show_top_games() {
+		global $DB, $IN, $CFG, $TAG, $STD, $session;
+		
+		//hardcoding some stuff that used to be in parameters and user settings
+		$c = 2;
+		$length = 10;
+		if (empty($IN['year']))
+			$o = array("b", "d");
+		else
+			$o = array("y", "d");
+
+		// On Then!
+		$module_record = $STD->modules->get_module($c);
+		$module = $STD->modules->new_module($c);
+
+		$module->init();
+		
+		//------------------------------------------------
+		// Start Page
+		//------------------------------------------------
+		
+		$this->output .= $STD->global_template->page_header("MFGG Hall of Fame");
+		
+		//------------------------------------------------
+		// Sort out filtering, ordering, etc
+		//------------------------------------------------
+
+		$order_list = array('d' => 'r.created', 'u' => 'IF(r.update_accept_date>0,r.update_accept_date,r.created)');
+									
+		$ex_order = $module->extra_order();
+		$order_list = array_merge($order_list, $ex_order[1]);
+		
+		$order = $STD->order_translate( $order_list, $o );
+		if (empty($IN['year']))
+			$list_name = "MFGG";
+		else
+			$list_name = $IN['year'];
+		$this->output .= $this->html->start_rows($list_name, "");
+
+		//------------------------------------------------
+		// Resource Rows
+		//------------------------------------------------
+		
+		$RES = new resource;
+		$RES->query_use('extention', $module_record['mid']);
+		$RES->query_use('r_user');
+		$RES->query_order($order[0], $order[1]);
+		$RES->query_limit(0, $length);
+		$RES->query_condition('r.queue_code IN (0,2)');
+		$RES->query_condition('r.accept_date > 0');
+		if ($list_name != "MFGG") {
+			$RES->query_condition('r.created > '.strtotime("01.01.".$list_name));
+			$RES->query_condition('r.created < '.strtotime("01.01.".(string)((int)$list_name+1)));
+			$filter = array();
+			$filter["6"] = "46";
+			$RES->query_use('filter', $filter);
+		}
+		$RES->getByType($c);
+
+		$rowlist = array();
+		
+		while ($RES->nextItem()) {
+			$data = $module->resdb_prep_data($RES->data);
+			$this->output .= $this->mod_html->resdb_row($data);
+		}
+		
+		$DB->free_result();
+		
+		$RES->query_unuse('extention');
+		$RES->query_unuse('r_user');
+		$RES->clear_condition();
+		$RES->query_condition('r.queue_code IN (0,2)');
+		$RES->query_condition('r.accept_date > 0');
+		
+		//------------------------------------------------
+		// Page Numbering and Ordering
+		//------------------------------------------------
+		
+		$this->output .= $this->html->end_rows();
+		$this->output .= $this->html->row_footer("", $list_name, "");
 		
 		$this->output .= $STD->global_template->page_footer();
 	}
@@ -245,6 +342,10 @@ class component_resourcedb {
 		$RES = new resource;
 		$RES->query_use('extention', $module_record['mid']);
 		$RES->query_use('r_user');
+
+		if (!is_numeric($IN['id']))
+			$STD->error("Nice try, nerd!");
+
 		if (!$RES->get($IN['id']))
 			$STD->error("Invalid resource selected");
 		
@@ -254,6 +355,23 @@ class component_resourcedb {
 		$data = $module->resdb_prep_page_data($RES->data);
 		
 		$data['report_url'] = $STD->encode_url($_SERVER['PHP_SELF'], "act=main&param=05&type=1&id={$IN['id']}");
+		
+		//FAVORITE URL GENERATION
+		$small_salt = "enterSaltHere";
+		$hashbrown = md5($IN['id'].$small_salt);
+		$data['fav_url'] = $STD->encode_url($_SERVER['PHP_SELF'], "act=main&param=17&type=1&c={$IN['c']}&rid={$IN['id']}&hash={$hashbrown}");
+		$data['unfav_url'] = $STD->encode_url($_SERVER['PHP_SELF'], "act=main&param=18&type=1&c={$IN['c']}&rid={$IN['id']}&hash={$hashbrown}");
+		
+		//DETERMINE IF THE SUBMISSION IS FAVORITED OR NOT
+		$data['my_fav'] = false;
+		$DB->query("SELECT * FROM {$CFG['db_pfx']}_bookmarks WHERE rid={$IN['id']} AND uid={$STD->user['uid']}");
+		if ($DB->get_num_rows() > 0) {
+			$data['my_fav'] = true;
+		}
+		
+		//GET NUMBER OF FAVS ON ME
+		$DB->query("SELECT * FROM {$CFG['db_pfx']}_bookmarks WHERE rid={$IN['id']}");
+		$data['total_fav'] = $DB->get_num_rows();
 		
 		$this->output .= $STD->global_template->page_header($module_record['full_name']);
 		$this->output .= $this->mod_html->resdb_page($data);
@@ -297,7 +415,7 @@ class component_resourcedb {
 			$newurl = $STD->encode_url($_SERVER['PHP_SELF'], "act=resdb&param=02&c={$IN['c']}&id={$IN['id']}");
 			$STD->error("You are attempting to download a file from another site.  
 						 Not only is hotlinking a theft of our bandwidth, but the sites that typically hotlink our 
-						 files have no permission from the authors to distribute their work.<br /><br />
+						 files have no permission from the authors to distribute their work.<br><br>
 						 You can download this file by <a href='$newurl'>visiting its page</a>.");
 		}
 		
@@ -351,7 +469,7 @@ class component_resourcedb {
 		if (isset($MIME_INFO[$ext]))
 			$disposition = $MIME_INFO[$ext][1];
 		
-		while (@ob_end_clean());
+		while (ob_end_clean());
 		//session_write_close();
 		
 		/*if (preg_match ("/gzip/i", $_SERVER['HTTP_ACCEPT_ENCODING']) ) {
