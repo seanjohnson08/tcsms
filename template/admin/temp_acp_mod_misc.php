@@ -14,6 +14,14 @@ return <<<HTML
   </td>
 </tr>
 <tr>
+  <td class='title_fixed' valign='top'>
+    Franchise
+  </td>
+  <td class='field_fixed'>
+	{$res['cat2']}
+  </td>
+</tr>
+<tr>
   <td>&nbsp;</td>
   <td>&nbsp;</td>
 </tr>
