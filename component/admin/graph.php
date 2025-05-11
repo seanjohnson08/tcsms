@@ -20,6 +20,9 @@ class piechart
 	var $image            = 0;
 	var $last_arc         = 0;
 	
+	var $name;
+	var $data;
+	
 	function init($serial_data)
 	{
 		$data = unserialize($serial_data);
@@ -44,7 +47,7 @@ class piechart
 		// Generate Colors
 		for ($x=0; $x<sizeof($this->colors_data); $x++)
 		{
-			$this->colors[$this->colors_data[$x][name]] = $this->SetColor($x);
+			$this->colors[$this->colors_data[$x]['name']] = $this->SetColor($x);
 		}
 		
 		// Fill initial image
@@ -96,16 +99,16 @@ class piechart
 		// get combined data
 		for ($x=0; $x<sizeof($this->segment_data); $x++)
 		{
-			$combined_value += $this->segment_data[$x][data];
+			$combined_value += $this->segment_data[$x]['data'];
 		}
 		
 		// get segment percent
-		$percent = ((double)$this->segment_data[$sr][data] / $combined_value);
+		$percent = ((double)$this->segment_data[$sr]['data'] / $combined_value);
 		$start_arc = $this->last_arc;
 		$end_arc = ((360.0 *  $percent) + $start_arc);
 
 		if ($sr == sizeof($this->segment_data) - 1 ||
-			$this->segment_data[$sr+1][data] == 0) {
+			$this->segment_data[$sr+1]['data'] == 0) {
 			$end_arc = 360;
 		}
 
