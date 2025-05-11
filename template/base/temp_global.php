@@ -278,7 +278,7 @@ return <<<HTML
     All Nintendo material is &copy; Nintendo. MFGG does not own any user-submitted content, which is &copy; the
     submitter or a third party. All remaining material is &copy; MFGG. MFGG is a non-profit site with no affiliation to Nintendo.
     <br><br>
-    <div style="text-align:center;">Powered by Taloncrossing SMS v1.0.4, &copy; 2006-2025 <a href='https://www.taloncrossing.com' class='outlink'>Taloncrossing.com</a>. Modified by Hypernova, Mors, and VinnyVideo.</div><br>
+    <div style="text-align:center;">Powered by Taloncrossing SMS v1.1, &copy; 2006-2025 <a href='https://www.taloncrossing.com' class='outlink'>Taloncrossing.com</a>. Modified by Hypernova, Mors, and VinnyVideo.</div><br>
   </div></footer>
  </td>
 </tr>
