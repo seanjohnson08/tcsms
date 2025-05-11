@@ -14,6 +14,14 @@ class resource extends table_frame {
 	
 	var $module = null;
 	
+	//function resource () { // Function was previously removed; readded 5/10/2025
+	function __construct(){
+		global $IN, $STD;
+		
+		if (!empty($IN['c']))
+			$this->module = $STD->modules->get_module($IN['c']);
+	}
+	
 	function update_module ($mid) {
 		global $DB, $CFG, $STD;
 		
