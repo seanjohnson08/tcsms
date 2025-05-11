@@ -215,7 +215,7 @@ class resource extends table_frame {
 		
 		if (in_array('extention', $this->use)) {
 			$select .= ",e.*";
-			$from .= "LEFT OUTER JOIN {$CFG['db_pfx']}_{$this->module['table_name']} e ON (r.eid = e.eid)"; // 3/24/25 VinnyNote: Bad code
+			$from .= "LEFT OUTER JOIN {$CFG['db_pfx']}_{$this->module['table_name']} e ON (r.eid = e.eid)";
 		}
 		
 		if (in_array('r_user', $this->use)) {
