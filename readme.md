@@ -22,6 +22,10 @@ TCSMS is now designed to run in PHP 8.x, although this is older code retrofitted
 
 5. Change any hardcoded instances of "https://www.mfgg.net/" to your localhost
 
+Once the site is running, you will probably want to register a user account or two for testing purposes. You may need to go into the database to promote it to admin.
+
+There will be very little content at first. You may want to create a couple of test submissions in different categories. Then go into the Admin Control Panel, accept the submissions (override the queue if needed), and create a news post.
+
 ### Authors
 
 - Retriever II - Original author of TCSMS
