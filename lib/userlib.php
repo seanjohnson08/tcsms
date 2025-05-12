@@ -359,55 +359,52 @@ class group extends table_frame {
 class session {
 	
 	//var $sess_id		= '';
-	//var $failed			= false;
+	//var $failed		= false;
 	//var $read_resources = array();
+	//var $phpver		= ''; // 5/11/2025 - I don't think this variable is used anymore
 	
-	// ---
-	
-	var $phpver			= '';
 	var $sess_id		= '';
 	var $sess_cookie	= '';
 	var $sess_active	= 0;
 	var $using_cookies	= 0;
 	var $location		= '';
-	var $sess_fail		= '';
+	var $sess_fail		= ''; // This adds a debug code visible at the start of the page source
 	
-	var $user			= array();
-	var $data			= array();
+	var $user		= array();
+	var $data		= array();
 	
-	var $bots			= array (
-			'Alexa'				=> 'ia_archiver',
-			'Amazon'				=> 'Amazon',
-			'Applebot'				=> 'Applebot',
-			'Archive.org'		=> 'archive.org_bot',
-			'Baiduspider'			=> 'Baidu',
-			'Barkrowler'		=> 'Barkrowler',
-			'Bingbot'			=> 'Bingbot',
-			'Bytespider'		=> 'Bytespider',
-			'ChatGPT'			=> 'ChatGPT',
-			'ClaudeBot'			=> 'ClaudeBot',
-			'Discordbot'			=> 'Discord',
-			'DotBot'			=> 'DotBot',
-			'DuckDuckBot'			=> 'DuckDuckGo',
-			//'Exabot'			=> 'Exabot',
-			'facebookexternalhit'	=> 'Facebook',
-			//'Gigabot'			=> 'Gigabot',
-			'Googlebot'			=> 'Google',
-			'GoogleOther'			=> 'GoogleOther',
-			'GPTBot'			=> 'GPTBot',
-			//'Google Adsense'		=> 'Mediapartners-Google',
-			'meta-externalagent'	=> 'Meta',
-			'Majestic'				=> 'MJ12bot',
-			//'MSN'				=> 'msnbot',
-			//'MSRBOT'			=> 'MSRBOT',
-			'SemrushBot'		=> 'Semrush',
-			'TikTokSpider'		=> 'TikTok',
-			//'Twiceler'			=> 'Twiceler',
-			'Twitterbot' 			=> 'Twitter',
-			//'Yahoo'				=> 'Yahoo! Slurp',
-			'Yandex'				=> 'Yandex',
+	var $bots		= array (
+		'Alexa'				=> 'ia_archiver',
+		'Amazon'				=> 'Amazon',
+		'Applebot'				=> 'Applebot',
+		'Archive.org'		=> 'archive.org_bot',
+		'Baiduspider'			=> 'Baidu',
+		'Barkrowler'		=> 'Barkrowler',
+		'Bingbot'			=> 'Bingbot',
+		'Bytespider'		=> 'Bytespider',
+		'ChatGPT'			=> 'ChatGPT',
+		'ClaudeBot'			=> 'ClaudeBot',
+		'Discordbot'			=> 'Discord',
+		'DotBot'			=> 'DotBot',
+		'DuckDuckBot'			=> 'DuckDuckGo',
+		//'Exabot'			=> 'Exabot',
+		'facebookexternalhit'	=> 'Facebook',
+		//'Gigabot'			=> 'Gigabot',
+		'Googlebot'			=> 'Google',
+		'GoogleOther'			=> 'GoogleOther',
+		'GPTBot'			=> 'GPTBot',
+		//'Google Adsense'		=> 'Mediapartners-Google',
+		'meta-externalagent'	=> 'Meta',
+		'Majestic'				=> 'MJ12bot',
+		//'MSN'				=> 'msnbot',
+		//'MSRBOT'			=> 'MSRBOT',
+		'SemrushBot'		=> 'Semrush',
+		'TikTokSpider'		=> 'TikTok',
+		//'Twiceler'			=> 'Twiceler',
+		'Twitterbot' 			=> 'Twitter',
+		//'Yahoo'				=> 'Yahoo! Slurp',
+		'Yandex'				=> 'Yandex',
 		);
-	//}
 	
 	function is_bot () {
 		$ua = $_SERVER['HTTP_USER_AGENT'];
@@ -785,8 +782,8 @@ class session {
 											    'user_agent'	=> $user_agent,
 											    'location'		=> $location,
 											    'sessdata'		=> '') );
-		//$DB->query ("INSERT INTO {$CFG['db_pfx']}_sessions ({$fields['FIELDS']}) 
-			//		 VALUES ({$fields['VALUES']})");
+		$DB->query ("INSERT INTO {$CFG['db_pfx']}_sessions ({$fields['FIELDS']}) 
+					 VALUES ({$fields['VALUES']})");
 
 		$update = $DB->format_db_update_values (array ('last_ip'		=> $remote_addr,
 													   'last_visit'		=> $dbsess['last_activity'],
