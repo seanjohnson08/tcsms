@@ -1268,25 +1268,31 @@ class component_main {
 		$comment = new comment;
 		
 		//QUERY
-		$rc_query = "( ".
-					"	SELECT c.*, u.username, r.title, g.name_prefix, g.name_suffix, r.type AS rt, r.rid ".
-					"	FROM {$CFG['db_pfx']}_comments AS c ".
-					"		JOIN {$CFG['db_pfx']}_users AS u ON (u.uid = c.uid) ".
-					"		JOIN {$CFG['db_pfx']}_groups g ON (g.gid = u.gid) ".
-					"		JOIN {$CFG['db_pfx']}_resources r ON (c.rid = r.rid) ".
-					"	WHERE c.type = 1 ".
-					") ".
-					"UNION ALL ".
-					"( ".
-					"	SELECT c.*, u.username, r.title, g.name_prefix, g.name_suffix, '' AS rt, r.nid AS rid ".
-					"	FROM {$CFG['db_pfx']}_comments AS c ".
-					"		JOIN {$CFG['db_pfx']}_users AS u ON (u.uid = c.uid) ".
-					"		JOIN {$CFG['db_pfx']}_groups g ON (g.gid = u.gid) ".
-					"		JOIN {$CFG['db_pfx']}_news r ON (r.nid = c.rid) ".
-					"	WHERE c.type = 2 ".
-					") ".
-					"ORDER BY date DESC ".
-					"LIMIT {$limit}";
+		$rc_query = <<<"SQL"
+				(
+					SELECT c.*, u.username, r.title, g.name_prefix, g.name_suffix, r.type AS rt, r.rid 
+					FROM {$CFG['db_pfx']}_comments AS c 
+						LEFT JOIN {$CFG['db_pfx']}_users AS u ON (u.uid = c.uid) 
+						LEFT JOIN {$CFG['db_pfx']}_groups g ON (g.gid = u.gid) 
+						LEFT JOIN {$CFG['db_pfx']}_resources r ON (c.rid = r.rid) 
+					WHERE c.type = 1
+					ORDER BY date DESC 
+					LIMIT {$limit}
+				) 
+				UNION ALL 
+				( 
+					SELECT c.*, u.username, r.title, g.name_prefix, g.name_suffix, '' AS rt, r.nid AS rid 
+					FROM {$CFG['db_pfx']}_comments AS c 
+						LEFT JOIN {$CFG['db_pfx']}_users AS u ON (u.uid = c.uid) 
+						LEFT JOIN {$CFG['db_pfx']}_groups g ON (g.gid = u.gid) 
+						LEFT JOIN {$CFG['db_pfx']}_news r ON (r.nid = c.rid) 
+					WHERE c.type = 2
+					ORDER BY date DESC 
+					LIMIT {$limit}
+				) 
+				ORDER BY date DESC 
+				LIMIT {$limit}
+			SQL;
 		$DB->query($rc_query);
 		$count = $DB->get_num_rows();
 		$comment = $DB;
