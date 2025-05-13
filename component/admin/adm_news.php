@@ -69,7 +69,7 @@ class component_adm_news {
 		
 		// Validation
 		if (!$STD->validate_form($IN['security_token']))
-			$STD->error("The update request did not originate from this site, or your request has allready been processed.");
+			$STD->error("The update request did not originate from this site, or your request has already been processed.");
 		
 		if (empty($IN['title']) || empty($IN['content']))
 			$STD->error("A required field was not filled in.");
@@ -185,7 +185,7 @@ class component_adm_news {
 		
 		// Validation
 		if (!$STD->validate_form($IN['security_token']))
-			$STD->error("The update request did not originate from this site, or your request has allready been processed.");
+			$STD->error("The update request did not originate from this site, or your request has already been processed.");
 
 		$NEWS = new news;
 		

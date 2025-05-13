@@ -366,7 +366,7 @@ class component_adm_ucp {
 
 		// Validation
 		if (!$STD->validate_form($IN['security_token']))
-			$STD->error("The update request did not originate from this site, or your request has allready been processed.");
+			$STD->error("The update request did not originate from this site, or your request has already been processed.");
 		
 		// Drop redirect
 		if (!empty($IN['drop_item'])) {
@@ -384,14 +384,14 @@ class component_adm_ucp {
 		if (!$user->get($IN['uid']))
 			$STD->error("User with ID \"{$IN['uid']}\" does not exist.");
 
-		// Does username allready exist if being changed?
+		// Does username already exist if being changed?
 		if (strlen($IN['username']) > 32)
 			$STD->error("Usernames cannot exceed 32 characters in length");
 			
 		if ($IN['username'] != $user->data['username']) {
 			$user_comp = new user;
 			if ($user_comp->getByName($IN['username']))
-				$STD->error("A user with the username \"{$IN['username']}\" allready exists.");
+				$STD->error("A user with the username \"{$IN['username']}\" already exists.");
 
 			$user->data['username'] = $IN['username'];
 		}
@@ -466,7 +466,7 @@ class component_adm_ucp {
 		
 		// Validation
 		if (!$STD->validate_form($IN['security_token']))
-			$STD->error("The drop request did not originate from this site, or your request has allready been processed.");
+			$STD->error("The drop request did not originate from this site, or your request has already been processed.");
 
 		$user = new user;
 
@@ -492,7 +492,7 @@ class component_adm_ucp {
 		
 		// Validation
 		if (!$STD->validate_form($IN['security_token']))
-			$STD->error("The drop request did not originate from this site, or your request has allready been processed.");
+			$STD->error("The drop request did not originate from this site, or your request has already been processed.");
 
 		$user = new user;
 
@@ -533,7 +533,7 @@ class component_adm_ucp {
 		
 		// Validation
 		if (!$STD->validate_form($IN['security_token']))
-			$STD->error("The drop request did not originate from this site, or your request has allready been processed.");
+			$STD->error("The drop request did not originate from this site, or your request has already been processed.");
 		
 		$blacks = explode("<br>", $IN['blacklist']);
 		
@@ -693,7 +693,7 @@ class component_adm_ucp {
 		
 		// Validation
 		if (!$STD->validate_form($IN['security_token']))
-			$STD->error("The update request did not originate from this site, or your request has allready been processed.");
+			$STD->error("The update request did not originate from this site, or your request has already been processed.");
 		
 		// Drop redirect
 		if (!empty($IN['drop_item'])) {
@@ -807,7 +807,7 @@ class component_adm_ucp {
 		
 		// Validation
 		if (!$STD->validate_form($IN['security_token']))
-			$STD->error("The drop request did not originate from this site, or your request has allready been processed.");
+			$STD->error("The drop request did not originate from this site, or your request has already been processed.");
 
 		$group = new group;
 		$merge = new group;

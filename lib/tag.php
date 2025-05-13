@@ -95,7 +95,7 @@ class tag {
 	// MIXED get_id_by_tag (MIXED tag)
 	//
 	// $tag: Tag Name, Tag ID, or Array of mixed Tag Names and IDs
-	// Takes a tag name and returns its equivalent ID.  If the tag name provided is allready a valid ID,
+	// Takes a tag name and returns its equivalent ID.  If the tag name provided is already a valid ID,
 	// the ID is returned.  If the tag name is an array, an array of corresponding tag IDs is returned.  If
 	// a tag name within an array is not valid, it is removed.  Otherwise any invalid tag name passed is
 	// returned as 0.

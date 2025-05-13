@@ -92,7 +92,7 @@ Class ErrorHandler {
 		$this->_errorSubCodes = array(
 			101		=> 'Error in SQL Query',
 			102		=> 'Could not Connect to Database Server',
-			103		=> 'Database Allready Exists',
+			103		=> 'Database already Exists',
 			104		=> 'Could not select database',
 			105		=> 'Could not connect Database',
 			201		=> 'Could not create directory',
