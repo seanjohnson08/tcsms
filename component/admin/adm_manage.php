@@ -379,7 +379,7 @@ class component_adm_manage {
 		
 		// Validation
 		if (!$STD->validate_form($IN['security_token']))
-			$STD->error("The drop request did not originate from this site, or your request has allready been processed.");
+			$STD->error("The drop request did not originate from this site, or your request has already been processed.");
 		
 		$CFG['site_offline'] = $IN['offline'];
 		$msg = $STD->rawclean_value($_POST['message']);

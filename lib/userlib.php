@@ -1068,7 +1068,7 @@ class session {
 		$session_pass = 0;
 		
 		//------------------------------------------------------------------
-		// Does a session allready exist?
+		// Does a session already exist?
 		
 		if (!empty($_SESSION['logged']) || !empty($_SESSION['guest_logged'])) {
 

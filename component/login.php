@@ -168,7 +168,7 @@ class component_login {
 		// Check if username is a duplicate
 		$user = new user;
 		if ($user->getByName($IN['username']))
-			$STD->error("The selected username is allready in use.  Please chose another one.");
+			$STD->error("The selected username is already in use.  Please chose another one.");
 		
 		// Check for banned email addresses
 		$mails = explode(",", $CFG['emaillist']);
@@ -278,7 +278,7 @@ class component_login {
 		//if (!$user->getByName($IN['username']))
 		//	$STD->error("The specified user does not exist.");
 		
-		// See if this user has allready set a password reset request recently
+		// See if this user has already set a password reset request recently
 		$time = time();
 		$time_lim = $time - 3600;
 		$DB->query("SELECT lid FROM {$CFG['db_pfx']}_mail_log 
