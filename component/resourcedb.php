@@ -387,8 +387,9 @@ class component_resourcedb {
 		$RES->data['views']++;
 		$RES->update();
 		
-		$session->touch_data ('rr');		
-		if ($RES->data['comment_date'] > $STD->user['last_visit']) {
+		$session->touch_data ('rr');
+		//var_dump($STD->user['last_visit']);
+		if (($STD->user['last_visit'] != 0) && ($RES->data['comment_date'] > $STD->user['last_visit'])) {
 			$session->data['rr'][$RES->data['rid']] = time();
 			//$session->add_read_resource($RES->data['rid']);
 			//$session->save_read_resources();
