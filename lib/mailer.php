@@ -58,10 +58,10 @@ class mailer {
 	
 	function clean_value ($value) {
 		
-		$value = str_replace("\r", "", $value);
-		$value = str_replace("\n", "", $value);
-		$value = str_replace("%0A", "", $value);
-		$value = str_replace("%0D", "", $value);
+		$value = $value ? str_replace("\r", "", $value): ""; // 5/13/2025 - adding ternary operators for PHP 8 compatibility
+		$value = $value ? str_replace("\n", "", $value): "";
+		$value = $value ? str_replace("%0A", "", $value): "";
+		$value = $value ? str_replace("%0D", "", $value): "";
 		
 		$value = preg_replace("/,+/", ",", $value);
 		$value = preg_replace("/[ \t]+/", "", $value);
