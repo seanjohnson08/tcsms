@@ -229,7 +229,7 @@ HTML;
 function page_header ($title) {
 global $STD;
 $the_header = '<div class="navigation">'.$title.'</div>
-<div class="header_region" style="text-align:center";><script>document.title="'.$title.' - MFGG - Mario Fan Games Galaxy";</script>';
+<div class="header_region" style="text-align:center;"><script>document.title="'.$title.' - MFGG - Mario Fan Games Galaxy";</script>';
 
 if ($STD->tags["skin"] == 3 || $STD->tags["skin"] == 6 || $STD->tags["skin"] == 7) {
   $the_header = '<div class="header_region"><script>document.title="'.$title.' - MFGG - Mario Fan Games Galaxy";</script>
@@ -278,7 +278,7 @@ return <<<HTML
     All Nintendo material is &copy; Nintendo. MFGG does not own any user-submitted content, which is &copy; the
     submitter or a third party. All remaining material is &copy; MFGG. MFGG is a non-profit site with no affiliation to Nintendo.
     <br><br>
-    <div style="text-align:center;">Powered by Taloncrossing SMS v1.1, &copy; 2006-2025 <a href='https://www.taloncrossing.com' class='outlink'>Taloncrossing.com</a>. Modified by Hypernova, Mors, and VinnyVideo.</div><br>
+    <div style="text-align:center;">Powered by Taloncrossing SMS v1.1.1, &copy; 2006-2025 <a href='https://www.taloncrossing.com' class='outlink'>Taloncrossing.com</a>. Modified by Hypernova, Mors, and VinnyVideo.</div><br>
   </div></footer>
  </td>
 </tr>
