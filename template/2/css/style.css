@@ -500,7 +500,6 @@ form {
 }
 
 .navigation {
-    width: 100%;
     color: #FFF636;
     padding: 24px 0px 10px 0px;
     background-image: url("../images/headerbg2.png");
@@ -508,7 +507,6 @@ form {
     margin-top: -25px;
     position: relative;
     border-bottom: 3px solid #9d0002;
-    display: inline-block;
 	font-size: 22px;
 	text-transform: uppercase;
 	text-align: center;
