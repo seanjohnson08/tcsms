@@ -328,7 +328,6 @@ class template_global
           default => implode('', [
             $template->site_menu(),
             $template->content($out),
-            $template->site_footer()
           ])
         };
 
@@ -342,6 +341,7 @@ class template_global
               <div class="container">
                 $container
               </div>
+              {$template->site_footer()}
               <script src="{$STD->tags['base_template_path']}/js/bigpicture.js"></script>
             </body>
           </html>
