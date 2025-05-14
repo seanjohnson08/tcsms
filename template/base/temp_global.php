@@ -2,10 +2,11 @@
 
 class template_global
 {
+  private string $title ='';
 
-    function message($msg)
-    {
-        return <<<HTML
+  function message($msg)
+  {
+    return <<<HTML
           <br>
           <div class="sform" style="width:75%; margin-left:auto; margin-right:auto">
             <table class="sformtable">
@@ -15,11 +16,11 @@ class template_global
             </table>
           </div>
           HTML;
-    }
+  }
 
-    function error($msg)
-    {
-        return <<<HTML
+  function error($msg)
+  {
+    return <<<HTML
           <br>
           <div class="sform" style="width:75%; margin-left:auto; margin-right:auto">
             <div class="sformstrip">Error</div>
@@ -34,12 +35,12 @@ class template_global
             </table>
           </div>
           HTML;
-    }
+  }
 
-    function offline($msg)
-    {
-        global $STD;
-        return <<<HTML
+  function offline($msg)
+  {
+    global $STD;
+    return <<<HTML
           <br>
           <div class="sform" style="width:75%; margin-left:auto; margin-right:auto">
             <div class="sformstrip">Site Offline</div>
@@ -66,14 +67,17 @@ class template_global
             </form>
           </div>
           HTML;
-    }
+  }
 
-    function html_head()
-    {
-        global $STD;
-        return <<<HTML
+  function html_head()
+  {
+    global $STD;
+
+    $title = ($this->title ? "{$this->title} - " : '') . 'MFGG - Mario Fan Games Galaxy';
+    
+    return <<<"HTML"
           <head>
-            <title>MFGG - Mario Fan Games Galaxy</title>
+            <title>{$title}</title>
             <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
             <link rel="shortcut icon" href="{$STD->tags['template_path']}/favicon.ico">
             <link rel="stylesheet" href="{$STD->tags['template_path']}/css/style.css" type="text/css">
@@ -82,12 +86,12 @@ class template_global
             <base href="https://mfgg.net/">
           </head>
           HTML;
-    }
+  }
 
-    function site_header()
-    {
-        global $STD;
-        return <<<HTML
+  function site_header()
+  {
+    global $STD;
+    return <<<HTML
           <div class="header">
             <div style="background: url({$STD->tags['image_path']}/header_br.png); border-spacing:0px; width:100%;">
               <a href="{$STD->tags['root_url']}act=main">
@@ -96,22 +100,22 @@ class template_global
             </div>
           </div>
           HTML;
-    }
+  }
 
-    function site_menu()
-    {
-        global $STD;
+  function site_menu()
+  {
+    global $STD;
 
-        $login = match(true) {
-          !$STD->user['uid'] => $this->menu_login(),
-          !empty($STD->user['acp_access'])
-            => $this->menu_loggedin($STD->user['username'], $STD->user['new_msgs'], $this->admin_link()),
-          default
-            => $this->menu_loggedin($STD->user['username'], $STD->user['new_msgs'], ''),
-        };
+    $login = match (true) {
+      !$STD->user['uid'] => $this->menu_login(),
+      !empty($STD->user['acp_access'])
+      => $this->menu_loggedin($STD->user['username'], $STD->user['new_msgs'], $this->admin_link()),
+      default
+      => $this->menu_loggedin($STD->user['username'], $STD->user['new_msgs'], ''),
+    };
 
-        $affiliates = file_get_contents(dirname(__FILE__) . "/../affiliates.html");
-        return <<<HTML
+    $affiliates = file_get_contents(dirname(__FILE__) . "/../affiliates.html");
+    return <<<HTML
           <aside style="width:160px">
             <div class="canvas_left">
               <br>
@@ -175,12 +179,12 @@ class template_global
             </div>
           </aside>
           HTML;
-    }
+  }
 
-    function menu_login()
-    {
-        global $STD;
-        return <<<HTML
+  function menu_login()
+  {
+    global $STD;
+    return <<<HTML
           <form method="post" action="{$STD->tags['root_url']}act=login&amp;param=02">
             <div class="menu">
                 <div class="menutitle">Login</div>
@@ -209,12 +213,12 @@ class template_global
             </div>
           </form>
           HTML;
-    }
+  }
 
-    function menu_loggedin($username, $messages, $extra)
-    {
-        global $STD;
-        return <<<HTML
+  function menu_loggedin($username, $messages, $extra)
+  {
+    global $STD;
+    return <<<HTML
           <div class="menu">
             <div class="menutitle">
               <a href="{$STD->tags['root_url']}act=user&amp;param=01&amp;uid={$STD->user['uid']}">{$username}</a>
@@ -230,28 +234,29 @@ class template_global
             </div>
           </div>
           HTML;
-    }
+  }
 
-    function content($content)
-    {
-        global $STD;
-        return <<<HTML
+  function content($content)
+  {
+    global $STD;
+    return <<<HTML
           <div class="canvas_center">
               <br>
               {$STD->global_template_ui->new_message()}
               {$content}
           </div>
           HTML;
-    }
+  }
 
-    function page_header($title)
-    {
-        global $STD;
+  function page_header($title)
+  {
+    global $STD;
 
-        if (in_array($STD->tags["skin"], [3, 6, 7])) {
-          return <<<HTML
+    $this->title = $title;
+
+    if (in_array($STD->tags["skin"], [3, 6, 7])) {
+      return <<<HTML
             <div class="header_region">
-              <script>document.title="{$title} - MFGG - Mario Fan Games Galaxy";</script>
               <table style="width:100%; margin-left: auto; margin-right: auto; border-spacing:0px;">
                 <tr>
                   <td style="background:url({$STD->tags['image_path']}/pipe_bg.gif); padding:0px;">
@@ -269,25 +274,23 @@ class template_global
               </table>
             </div>
             HTML;
-        }
+    }
 
 
-        return <<<HTML
+    return <<<HTML
           <div class="navigation">{$title}</div>
-          <div class="header_region" style="text-align:center">
-            <script>document.title="' . $title . ' - MFGG - Mario Fan Games Galaxy";</script>
-          </div>
+          <div class="header_region" style="text-align:center"></div>
           HTML;
-    }
+  }
 
-    function page_footer()
-    {
-        return '';
-    }
+  function page_footer()
+  {
+    return '';
+  }
 
-    function site_footer()
-    {
-        return <<<HTML
+  function site_footer()
+  {
+    return <<<HTML
           <footer class="canvas_center copyright">
             All Nintendo material is &copy; Nintendo. MFGG does not own any user-submitted content, which is &copy; the
             submitter or a third party. All remaining material is &copy; MFGG. MFGG is a non-profit site with no affiliation to Nintendo.
@@ -298,40 +301,39 @@ class template_global
             <br>
           </footer>
           HTML;
-    }
+  }
 
-    function new_messages($msg)
-    {
-        return <<<HTML
+  function new_messages($msg)
+  {
+    return <<<HTML
           <div class="message">You have a new message: <b>$msg</b></div>
           <br>
           HTML;
-    }
+  }
 
-    function admin_link()
-    {
-        return <<<HTML
+  function admin_link()
+  {
+    return <<<HTML
           <hr>
           <div class="menuitem"><a href="admin.php">Admin CP</a></div>
           HTML;
-    }
+  }
 
-    // Not a true skin component
-    function wrapper($template, $out)
-    {
-        global $STD;
+  // Not a true skin component
+  function wrapper($template, $out)
+  {
+    global $STD;
 
+    $container = match (true) {
+      isset($STD->offline) => $template->offline($out),
+      isset($STD->popup_window) => $out,
+      default => implode('', [
+        $template->site_menu(),
+        $template->content($out),
+      ])
+    };
 
-        $container = match(true) {
-          isset($STD->offline) => $template->offline($out),
-          isset($STD->popup_window) => $out,
-          default => implode('', [
-            $template->site_menu(),
-            $template->content($out),
-          ])
-        };
-
-        return <<<HTML
+    return <<<HTML
           <!doctype html>
           <html lang="en">
             {$template->html_head()}
@@ -346,5 +348,5 @@ class template_global
             </body>
           </html>
           HTML;
-    }
+  }
 }
