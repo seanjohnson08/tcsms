@@ -631,8 +631,6 @@ class session {
 			if ($dbsess['user_agent'] != $user_agent) {
 				$session_pass = 0;
 				$this->sess_fail .= '.13';
-				$this->fault = "{$_SERVER['HTTP_USER_AGENT']} == {$dbsess['user_agent']}";
-				$this->fetch = $dbsess;
 			}
 		}
 		elseif (!empty ($this->sess_cookie) ) {
