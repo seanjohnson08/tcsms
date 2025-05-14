@@ -37,7 +37,7 @@ return <<<HTML
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <style>
         <!--
-        body { font-family: Verdana, Arial, Helectiva, Sans-Serif; font-size:10pt }
+        body { font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size:10pt }
         a:link, a:visited {text-decoration:none; color: #0000FF }
         .header { background: #5D669A; color: #FFFFFF; font-size:14pt; width:100% }
         .subheader { background: #7D86BA; color: #FFFFFF; font-size:13pt; width:100% }
