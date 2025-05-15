@@ -118,6 +118,7 @@ class template_global
     $affiliates = file_get_contents(dirname(__FILE__) . "/../affiliates.html");
     return <<<HTML
       <aside style="leftmenu">
+        <button class="menutitle2 leftmenutoggle" onclick="document.body.querySelector('.leftmenu').classList.toggle('expanded')">Navigation</div>
         <div class="canvas_left">
           <div class="menu">
             <div class="menutitle2">Main</div>
@@ -173,17 +174,17 @@ class template_global
               </form>
             </div>
           </div>
-        </div>
-        <div style="margin: 10px 0">
-          {$login}
-        </div>
-        <div class="menu">
+          <div style="margin: 10px 0">
+            {$login}
+          </div>
+          <div class="menu">
             {$affiliates}
             <br>
             <div class="menu" style="padding: 0px; border:0px solid #444444; border-bottom: 0px solid #444444; display: none;">
               <div style="background: none; height: 6px;"></div>
               <div class="menusection" style="padding: 0px; background-color: #585858;"></div>
             </div>
+          </div>
         </div>
       </aside>
       HTML;
