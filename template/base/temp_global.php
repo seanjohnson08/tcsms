@@ -118,7 +118,6 @@ class template_global
     return <<<HTML
       <aside style="width:160px">
         <div class="canvas_left">
-          <br>
           <div class="menu">
             <div class="menutitle2">Main</div>
             <div class="menusection">
@@ -128,6 +127,8 @@ class template_global
               <div class="menuitemsidebarlong"><a href="{$STD->tags['root_url']}act=page&amp;name=rules"><span>Comment Rules</span><img alt="Comment/Message Rules" src="{$STD->tags['global_image_path']}/mainCommRules.png"></a></div>
               <div class="menuitemsidebarlong"><a href="{$STD->tags['root_url']}act=resdb&amp;param=05&amp;c=2"><span>Hall of Fame</span><img alt="MFGG Hall of Fame" src="{$STD->tags['global_image_path']}/mainMainHall.png"></a></div>
             </div>
+          </div>
+          <div class="menu">
             <div class="menutitle2">Community</div>
             <div class="menusection">
               <div class="menuitemsidebar"><a href="https://forums.mfgg.net/">Forums<img alt="Forums" src="{$STD->tags['global_image_path']}/mainCommForums.png"></a></div>
@@ -135,6 +136,8 @@ class template_global
               <div class="menuitemsidebar"><a href="https://wiki.mfgg.net/">Wiki<img alt="Wiki" src="template/images/mainCommWiki.png"></a></div>
               <div class="menuitemsidebar"><a href="https://twitter.com/OfficialMFGG">Twitter<img alt="Twitter" src="template/images/mainCommTwitter.png"></a></div>
             </div>
+          </div>
+          <div class="menu">
             <div class="menutitle2">Content</div>
             <div class="menusection">
               <div class="menuitemsidebar"><a href="{$STD->tags['root_url']}act=resdb&amp;param=01&amp;c=2">Games<img alt="Games" src="{$STD->tags['global_image_path']}/mainContentGames.png"></a></div>
@@ -144,12 +147,16 @@ class template_global
               <div class="menuitemsidebar"><a href="{$STD->tags['root_url']}act=resdb&amp;param=01&amp;c=5">Sounds<img alt="Sounds" src="{$STD->tags['global_image_path']}/mainContentSounds.png"></a></div>
               <div class="menuitemsidebar"><a href="{$STD->tags['root_url']}act=resdb&amp;param=01&amp;c=6">Misc<img alt="Misc" src="{$STD->tags['global_image_path']}/mainContentMisc.png"></a></div>
             </div>
+          </div>
+          <div class="menu">
             <div class="menutitle2">Other</div>
             <div class="menusection">
               <div class="menuitemsidebarlong"><a href="{$STD->tags['root_url']}act=main&amp;param=08"><span>Updates Archive</span><img alt="Archives" src="{$STD->tags['global_image_path']}/mainMainArchive.png"></a></div>
               <div class="menuitemsidebarlong"><a href="{$STD->tags['root_url']}act=page&amp;name=patcher"><span>BPS Patcher</span><img alt="BPS Patcher" src="{$STD->tags['global_image_path']}/mainMainBPS.png"></a></div>
               <div class="menuitemsidebarlong"><a href="{$STD->tags['root_url']}act=main&amp;param=19"><span>New Comments</span><img alt="New Comments" src="{$STD->tags['global_image_path']}/mainCommRules.png"></a></div>
             </div>
+          </div>
+          <div class="menu">
             <div class="menutitle2">Search</div>
             <div class="menusection">
               <form method="get" action="{$STD->tags['root_url']}">
