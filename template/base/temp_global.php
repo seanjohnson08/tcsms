@@ -79,6 +79,7 @@ class template_global
       <head>
         <title>{$title}</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <link rel="shortcut icon" href="{$STD->tags['template_path']}/favicon.ico">
         <link rel="stylesheet" href="{$STD->tags['template_path']}/css/style.css" type="text/css">
         <link rel="stylesheet" href="{$STD->tags['base_template_path']}/css/style.css" type="text/css">
@@ -116,7 +117,7 @@ class template_global
 
     $affiliates = file_get_contents(dirname(__FILE__) . "/../affiliates.html");
     return <<<HTML
-      <aside style="width:160px">
+      <aside style="leftmenu">
         <div class="canvas_left">
           <div class="menu">
             <div class="menutitle2">Main</div>
@@ -173,9 +174,9 @@ class template_global
             </div>
           </div>
         </div>
-        <br>
-        {$login}
-        <br>
+        <div style="margin: 10px 0">
+          {$login}
+        </div>
         <div class="menu">
             {$affiliates}
             <br>
@@ -248,7 +249,6 @@ class template_global
     global $STD;
     return <<<HTML
       <div class="canvas_center">
-          <br>
           {$STD->global_template_ui->new_message()}
           {$content}
       </div>
@@ -299,12 +299,13 @@ class template_global
   {
     return <<<HTML
       <footer class="canvas_center copyright">
-        All Nintendo material is &copy; Nintendo. MFGG does not own any user-submitted content, which is &copy; the
+        <p>
+          All Nintendo material is &copy; Nintendo. MFGG does not own any user-submitted content, which is &copy; the
         submitter or a third party. All remaining material is &copy; MFGG. MFGG is a non-profit site with no affiliation to Nintendo.
-        <br><br>
-        <div style="text-align:center;">
+        </p>
+        <p style="text-align:center">
           Powered by Taloncrossing SMS v1.1.1, &copy; 2006-2025 <a href='https://www.taloncrossing.com' class='outlink'>Taloncrossing.com</a>. Modified by Hypernova, Mors, and VinnyVideo.
-        </div>
+        </p>
         <br>
       </footer>
       HTML;

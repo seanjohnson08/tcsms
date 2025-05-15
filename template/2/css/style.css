@@ -49,6 +49,11 @@ form {
 	width: 100%;
 }
 
+.leftmenu {
+	margin: 0 10px;
+	width: 160px;
+}
+
 .menu {
 	border: 0px;
 	background :#101f79;
@@ -504,7 +509,6 @@ form {
     padding: 24px 0px 10px 0px;
     background-image: url("../images/headerbg2.png");
     background-repeat: repeat-x;
-    margin-top: -25px;
     position: relative;
     border-bottom: 3px solid #9d0002;
 	font-size: 22px;
